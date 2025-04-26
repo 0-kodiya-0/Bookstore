@@ -6,10 +6,14 @@ import com.example.bookstore.exception.mapper.CartItemExistsExceptionMapper;
 import com.example.bookstore.exception.mapper.CartItemNotFoundExceptionMapper;
 import com.example.bookstore.exception.mapper.CartItemsNotFoundExceptionMapper;
 import com.example.bookstore.exception.mapper.CustomerNotFoundExceptionMapper;
+import com.example.bookstore.exception.mapper.GenericExceptionMapper;
 import com.example.bookstore.exception.mapper.InvalidInputExceptionMapper;
+import com.example.bookstore.exception.mapper.JsonProcessingExceptionMapper;
 import com.example.bookstore.exception.mapper.OrderNotFoundExceptionMapper;
 import com.example.bookstore.exception.mapper.OutOfStockExceptionMapper;
 import com.example.bookstore.exception.mapper.UnrecognizedFieldExceptionMapper;
+import com.example.bookstore.exception.mapper.WebApplicationExceptionMapper;
+import com.example.bookstore.filters.TrailingSlashFilter;
 import com.example.bookstore.resources.AuthorBaseResource;
 import com.example.bookstore.resources.AuthorIdResource;
 import com.example.bookstore.resources.BookBaseResource;
@@ -39,6 +43,9 @@ public class MyApplication extends Application {
         classes.add(CustomerIdResource.class);
         classes.add(CartResource.class);
         classes.add(CustomerOrderResource.class);
+        
+        // Filters
+        classes.add(TrailingSlashFilter.class);
 
         // Exception mappers
         classes.add(BookNotFoundExceptionMapper.class);
@@ -51,6 +58,10 @@ public class MyApplication extends Application {
         classes.add(CartItemNotFoundExceptionMapper.class);
         classes.add(CartItemsNotFoundExceptionMapper.class);
         classes.add(UnrecognizedFieldExceptionMapper.class);
+        
+        classes.add(GenericExceptionMapper.class);
+        classes.add(JsonProcessingExceptionMapper.class);
+        classes.add(WebApplicationExceptionMapper.class);
 
         return classes;
     }
