@@ -8,9 +8,9 @@ import com.example.bookstore.models.DeleteResponse;
 import com.example.bookstore.models.UpdateResponse;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
@@ -20,9 +20,8 @@ import java.util.stream.Collectors;
  */
 public class BookRepository {
 
-    private static final Map<Long, Book> books = new HashMap<>();
+    private static final Map<Long, Book> books = new ConcurrentHashMap<>();
     private static final AtomicLong bookIdCounter = new AtomicLong(1);
-    private static BookRepository bookRepo;
 
     private AuthorRepository authorRepository;
 
@@ -31,7 +30,7 @@ public class BookRepository {
     }
 
     // Create
-    public Book addBook(Book book) {
+    public synchronized Book addBook(Book book) {
         // Check for duplicate title before adding
         if (!authorRepository.exists(book.getAuthorId())) {
             throw new AuthorNotFoundException(book.getAuthorId());
@@ -63,7 +62,7 @@ public class BookRepository {
     }
 
     // Check if a book with the same normalized title already exists
-    public boolean isDuplicateTitle(String title) {
+    public synchronized boolean isDuplicateTitle(String title) {
         if (title == null) {
             return false;
         }
@@ -104,7 +103,7 @@ public class BookRepository {
     }
 
     // Update
-    public UpdateResponse<Book> updateBook(Long id, Book updatedBook) {
+    public synchronized UpdateResponse<Book> updateBook(Long id, Book updatedBook) {
         // Check if update would cause a duplicate title with another book
         Book currentBook = getBookById(id);
         int fieldsUpdated = 0;
@@ -153,7 +152,7 @@ public class BookRepository {
                 updated = true;
             }
         }
-        
+
         if (updatedBook.getAuthorId() != null && !updatedBook.getAuthorId().equals(currentBook.getAuthorId())) {
             if (updatedBook.getAuthorId() < 0 || authorRepository.getAuthorById(updatedBook.getAuthorId()) == null) {
                 throw new AuthorNotFoundException(updatedBook.getAuthorId());
@@ -168,11 +167,11 @@ public class BookRepository {
     }
 
     // Delete
-    public DeleteResponse deleteBook(Long id) {
+    public synchronized DeleteResponse deleteBook(Long id) {
         if (!exists(id)) {
             throw new BookNotFoundException(id);
         }
-      
+
         books.remove(id);
         return new DeleteResponse(true, 1);
     }
@@ -182,7 +181,7 @@ public class BookRepository {
         return books.containsKey(id);
     }
 
-    public void reduceStock(Long id, int quantity) {
+    public synchronized void reduceStock(Long id, int quantity) {
         Book book = getBookById(id);
         book.setStock(book.getStock() - quantity);
         books.put(id, book);

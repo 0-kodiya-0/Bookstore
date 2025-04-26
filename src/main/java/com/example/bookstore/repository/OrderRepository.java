@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.example.bookstore.repository;
 
 import com.example.bookstore.exception.CustomerNotFoundException;
@@ -14,9 +10,9 @@ import com.example.bookstore.models.Order;
 import com.example.bookstore.models.OrderItem;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
@@ -26,7 +22,7 @@ import java.util.stream.Collectors;
  */
 public class OrderRepository {
 
-    private static final Map<Long, Order> orders = new HashMap<>();
+    private static final Map<Long, Order> orders = new ConcurrentHashMap<>();
     private static final AtomicLong orderIdCounter = new AtomicLong(1);
 
     private CustomerRepository customerRepository;
@@ -46,7 +42,7 @@ public class OrderRepository {
     }
 
     // Create
-    public Order createOrder(Long customerId) {
+    public synchronized Order createOrder(Long customerId) {
         // Verify customer exists
         if (!customerRepository.exists(customerId)) {
             throw new CustomerNotFoundException(customerId);

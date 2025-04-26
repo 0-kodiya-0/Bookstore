@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.example.bookstore;
 
 import com.example.bookstore.exception.mapper.AuthorNotFoundExceptionMapper;
@@ -14,11 +10,14 @@ import com.example.bookstore.exception.mapper.InvalidInputExceptionMapper;
 import com.example.bookstore.exception.mapper.OrderNotFoundExceptionMapper;
 import com.example.bookstore.exception.mapper.OutOfStockExceptionMapper;
 import com.example.bookstore.exception.mapper.UnrecognizedFieldExceptionMapper;
-import com.example.bookstore.resources.AuthorResource;
-import com.example.bookstore.resources.BookResource;
+import com.example.bookstore.resources.AuthorBaseResource;
+import com.example.bookstore.resources.AuthorIdResource;
+import com.example.bookstore.resources.BookBaseResource;
+import com.example.bookstore.resources.BookIdResource;
 import com.example.bookstore.resources.CartResource;
+import com.example.bookstore.resources.CustomerBaseResource;
+import com.example.bookstore.resources.CustomerIdResource;
 import com.example.bookstore.resources.CustomerOrderResource;
-import com.example.bookstore.resources.CustomerResource;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 import java.util.HashSet;
@@ -32,9 +31,12 @@ public class MyApplication extends Application {
         Set<Class<?>> classes = new HashSet<>();
 
         // Resources
-        classes.add(BookResource.class);
-        classes.add(AuthorResource.class);
-        classes.add(CustomerResource.class);
+        classes.add(AuthorIdResource.class);
+        classes.add(AuthorBaseResource.class);
+        classes.add(BookBaseResource.class);
+        classes.add(BookIdResource.class);
+        classes.add(CustomerBaseResource.class);
+        classes.add(CustomerIdResource.class);
         classes.add(CartResource.class);
         classes.add(CustomerOrderResource.class);
 

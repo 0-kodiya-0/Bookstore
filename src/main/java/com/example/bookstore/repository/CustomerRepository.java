@@ -6,9 +6,9 @@ import com.example.bookstore.models.Customer;
 import com.example.bookstore.models.DeleteResponse;
 import com.example.bookstore.models.UpdateResponse;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class CustomerRepository {
 
-    private static final Map<Long, Customer> customers = new HashMap<>();
+    private static final Map<Long, Customer> customers = new ConcurrentHashMap<>();
     private static final AtomicLong customerIdCounter = new AtomicLong(1);
     
     private CartRepository cartRepository;
@@ -27,7 +27,7 @@ public class CustomerRepository {
     }
 
     // Create
-    public Customer addCustomer(Customer customer) {
+    public synchronized Customer addCustomer(Customer customer) {
         if (customer.getName().trim().isEmpty()) {
             throw new InvalidInputException("Customer name cannot be empty.");
         }
@@ -53,7 +53,7 @@ public class CustomerRepository {
     }
 
     // Check if a customer with the same email already exists
-    public boolean isDuplicateEmail(String email) {
+    public synchronized boolean isDuplicateEmail(String email) {
         if (email == null) {
             return false;
         }
@@ -88,7 +88,7 @@ public class CustomerRepository {
     }
 
     // Update
-     public UpdateResponse<Customer> updateCustomer(Long id, Customer updatedCustomer) {
+     public synchronized UpdateResponse<Customer> updateCustomer(Long id, Customer updatedCustomer) {
         Customer currentCustomer = getCustomerById(id);
         int fieldsUpdated = 0;
         boolean updated = false;
@@ -136,7 +136,7 @@ public class CustomerRepository {
     }
      
     // Delete
-    public DeleteResponse deleteCustomer(Long id) {
+    public synchronized DeleteResponse deleteCustomer(Long id) {
         if (!exists(id)) {
             throw new CustomerNotFoundException(id);
         }

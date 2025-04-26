@@ -1,10 +1,7 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.example.bookstore.resources;
 
 import com.example.bookstore.config.AppConfig;
+import com.example.bookstore.exception.InvalidInputException;
 import com.example.bookstore.models.Cart;
 import com.example.bookstore.models.CartItem;
 import com.example.bookstore.models.DeleteResponse;
@@ -32,29 +29,53 @@ public class CartResource {
     private CartRepository cartRepository = AppConfig.getCartRepository();
 
     @GET
-    public Cart getCart(@PathParam("customerId") Long customerId) {
+    public Cart getCart(@PathParam("customerId") String customerIdString) {
+        Long customerId = validateAndParseId(customerIdString, "Customer");
         return cartRepository.getCartByCustomerId(customerId);
     }
 
     @POST
     @Path("/items")
-    public Cart addItemToCart(@PathParam("customerId") Long customerId, CartItem item) {
+    public Cart addItemToCart(@PathParam("customerId") String customerIdString, CartItem item) {
+        Long customerId = validateAndParseId(customerIdString, "Customer");
+        
+        if (item.getBookId() == null) {
+            throw new InvalidInputException("Book ID cannot be empty.");
+        }
         return cartRepository.addOrCreateCart(customerId, item);
     }
 
     @PUT
     @Path("/items/{bookId}")
     public UpdateResponse<Cart> updateCartItem(
-            @PathParam("customerId") Long customerId,
-            @PathParam("bookId") Long bookId, CartItem item) {
+            @PathParam("customerId") String customerIdString,
+            @PathParam("bookId") String bookIdString, CartItem item) {
+        Long customerId = validateAndParseId(customerIdString, "Customer");
+        Long bookId = validateAndParseId(bookIdString, "Book");
+        
         return cartRepository.updateCartItemQuantity(customerId, bookId, item);
     }
 
     @DELETE
     @Path("/items/{bookId}")
     public DeleteResponse removeCartItem(
-            @PathParam("customerId") Long customerId,
-            @PathParam("bookId") Long bookId) {
+            @PathParam("customerId") String customerIdString,
+            @PathParam("bookId") String bookIdString) {
+        Long customerId = validateAndParseId(customerIdString, "Customer");
+        Long bookId = validateAndParseId(bookIdString, "Book");
+        
         return cartRepository.removeCartItem(customerId, bookId);
+    }
+
+    private Long validateAndParseId(String idString, String entityType) {
+        if (idString == null || idString.trim().isEmpty()) {
+            throw new InvalidInputException(entityType + " ID cannot be empty.");
+        }
+        
+        try {
+            return Long.parseLong(idString.trim());
+        } catch (NumberFormatException e) {
+            throw new InvalidInputException(entityType + " ID must be a valid number.");
+        }
     }
 }

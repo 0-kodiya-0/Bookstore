@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.example.bookstore.repository;
 
 import com.example.bookstore.exception.AuthorNotFoundException;
@@ -11,9 +7,9 @@ import com.example.bookstore.models.Book;
 import com.example.bookstore.models.DeleteResponse;
 import com.example.bookstore.models.UpdateResponse;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -22,7 +18,7 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class AuthorRepository {
 
-    private static final Map<Long, Author> authors = new HashMap<>();
+    private static final Map<Long, Author> authors = new ConcurrentHashMap<>();
     private static final AtomicLong authorIdCounter = new AtomicLong(1);
     private BookRepository bookRepository;
 
@@ -31,7 +27,7 @@ public class AuthorRepository {
     }
 
     // Create
-    public Author addAuthor(Author author) {
+    public synchronized Author addAuthor(Author author) {
         if (author.getName().trim().isEmpty()) {
             throw new InvalidInputException("Author name cannot be empty.");
         }
@@ -46,7 +42,7 @@ public class AuthorRepository {
     }
 
     // Check if a book with the same normalized title already exists
-    public boolean isDuplicateName(String name) {
+    public synchronized boolean isDuplicateName(String name) {
         if (name == null) {
             return false;
         }
@@ -80,7 +76,7 @@ public class AuthorRepository {
         return author;
     }
 
-    public UpdateResponse<Author> updateAuthor(Long id, Author updatedAuthor) {
+    public synchronized UpdateResponse<Author> updateAuthor(Long id, Author updatedAuthor) {
         Author currentAuthor = getAuthorById(id);
         int fieldsUpdated = 0;
         boolean updated = false;
@@ -95,7 +91,7 @@ public class AuthorRepository {
                 updated = true;
             }
         }
-        
+
         if (updatedAuthor.getBiography() != null && !updatedAuthor.getBiography().trim().isEmpty()) {
             if (!currentAuthor.getBiography().equals(updatedAuthor.getBiography())) {
                 currentAuthor.setBiography(updatedAuthor.getBiography());
@@ -106,8 +102,8 @@ public class AuthorRepository {
 
         return new UpdateResponse<>(currentAuthor, updated, fieldsUpdated);
     }
-    
-    public DeleteResponse deleteAuthor(Long id) {
+
+    public synchronized DeleteResponse deleteAuthor(Long id) {
         if (!exists(id)) {
             throw new AuthorNotFoundException(id);
         }

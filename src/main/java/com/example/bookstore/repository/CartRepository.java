@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.example.bookstore.repository;
 
 import com.example.bookstore.exception.CartItemExistsException;
@@ -15,8 +11,8 @@ import com.example.bookstore.models.Cart;
 import com.example.bookstore.models.CartItem;
 import com.example.bookstore.models.DeleteResponse;
 import com.example.bookstore.models.UpdateResponse;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  *
@@ -24,7 +20,7 @@ import java.util.Map;
  */
 public class CartRepository {
 
-    private static final Map<Long, Cart> carts = new HashMap<>();
+    private static final Map<Long, Cart> carts = new ConcurrentHashMap<>();
     private CustomerRepository customerRepository;
     private BookRepository bookRepository;
 
@@ -37,7 +33,7 @@ public class CartRepository {
     }
 
     // Create or get
-    public Cart addOrCreateCart(Long customerId, CartItem item) {
+    public synchronized Cart addOrCreateCart(Long customerId, CartItem item) {
         // Verify customer exists
         if (!customerRepository.exists(customerId)) {
             throw new CustomerNotFoundException(customerId);
@@ -85,7 +81,7 @@ public class CartRepository {
         return cart;
     }
 
-    public UpdateResponse<Cart> updateCartItemQuantity(Long customerId, Long bookId, CartItem item) {
+    public synchronized UpdateResponse<Cart> updateCartItemQuantity(Long customerId, Long bookId, CartItem item) {
         if (item.getQuantity() <= 0) {
             throw new InvalidInputException("Quantity must be positive or greater than 0.");
         }
@@ -115,7 +111,7 @@ public class CartRepository {
         return new UpdateResponse<>(cart, true, 1);
     }
 
-    public DeleteResponse removeCartItem(Long customerId, Long bookId) {
+    public synchronized DeleteResponse removeCartItem(Long customerId, Long bookId) {
         // Verify book exists
         if (!customerRepository.exists(customerId)) {
             throw new CustomerNotFoundException(customerId);
@@ -138,7 +134,7 @@ public class CartRepository {
     }
 
     // Delete
-    public void deleteCart(Long customerId) {
+    public synchronized void deleteCart(Long customerId) {
         if (carts.get(customerId).getItems().size() <= 0) {
             return;
         }

@@ -1,10 +1,7 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.example.bookstore.resources;
 
 import com.example.bookstore.config.AppConfig;
+import com.example.bookstore.exception.InvalidInputException;
 import com.example.bookstore.exception.OrderNotFoundException;
 import com.example.bookstore.models.Order;
 import com.example.bookstore.repository.OrderRepository;
@@ -31,17 +28,15 @@ import java.util.List;
 public class CustomerOrderResource {
 
     private OrderRepository orderRepository = AppConfig.getOrderRepository();
-
-    @GET
-    public List<Order> getCustomerOrders(@PathParam("customerId") Long customerId) {
-        return orderRepository.getOrdersByCustomerId(customerId);
-    }
-
+    
     @GET
     @Path("/{orderId}")
     public Response getCustomerOrder(
-            @PathParam("customerId") Long customerId,
-            @PathParam("orderId") Long orderId) {
+            @PathParam("customerId") String customerIdString,
+            @PathParam("orderId") String orderIdString) {
+        Long customerId = validateAndParseId(customerIdString, "Customer");
+        Long orderId = validateAndParseId(orderIdString, "Order");
+
         Order order = orderRepository.getCustomerOrderById(customerId, orderId);
         if (order == null) {
             throw new OrderNotFoundException(customerId, orderId);
@@ -50,10 +45,18 @@ public class CustomerOrderResource {
         return Response.ok(order).build();
     }
 
+    @GET
+    public List<Order> getCustomerOrders(@PathParam("customerId") String customerIdString) {
+        Long customerId = validateAndParseId(customerIdString, "Customer");
+        return orderRepository.getOrdersByCustomerId(customerId);
+    }
+
     @POST
     public Response createOrderFromCart(
-            @PathParam("customerId") Long customerId,
+            @PathParam("customerId") String customerIdString,
             @Context UriInfo uriInfo) {
+        Long customerId = validateAndParseId(customerIdString, "Customer");
+
         // Save order
         Order createdOrder = orderRepository.createOrder(customerId);
 
@@ -63,5 +66,17 @@ public class CustomerOrderResource {
                 .build();
 
         return Response.created(location).entity(createdOrder).build();
+    }
+
+    private Long validateAndParseId(String idString, String entityType) {
+        if (idString == null || idString.trim().isEmpty()) {
+            throw new InvalidInputException(entityType + " ID cannot be empty.");
+        }
+
+        try {
+            return Long.parseLong(idString.trim());
+        } catch (NumberFormatException e) {
+            throw new InvalidInputException(entityType + " ID must be a valid number.");
+        }
     }
 }
