@@ -31,23 +31,20 @@ public class BookRepository {
 
     // Create
     public synchronized Book addBook(Book book) {
-        // Check for duplicate title before adding
+        // Check for valid author
         if (!authorRepository.exists(book.getAuthorId())) {
             throw new AuthorNotFoundException(book.getAuthorId());
         }
-
-        // Validate publication year
+        
         int currentYear = Calendar.getInstance().get(Calendar.YEAR);
         if (book.getPublicationYear() > currentYear) {
             throw new InvalidInputException("Publication year cannot be in the future.");
         }
 
-        // Validate price
         if (book.getPrice() <= 0) {
             throw new InvalidInputException("Price cannot be negative or equal to 0.");
         }
 
-        // Validate stock
         if (book.getStock() <= 0) {
             throw new InvalidInputException("Stock cannot be negative or equal to 0.");
         }
@@ -104,7 +101,6 @@ public class BookRepository {
 
     // Update
     public synchronized UpdateResponse<Book> updateBook(Long id, Book updatedBook) {
-        // Check if update would cause a duplicate title with another book
         Book currentBook = getBookById(id);
         int fieldsUpdated = 0;
         boolean updated = false;
@@ -121,10 +117,10 @@ public class BookRepository {
         }
 
         int currentYear = Calendar.getInstance().get(Calendar.YEAR);
-        if (updatedBook.getPublicationYear() != 0) {
+        if (updatedBook.getPublicationYear() != null) {
             if (updatedBook.getPublicationYear() > currentYear) {
                 throw new InvalidInputException("Publication year cannot be in the future.");
-            } else if (currentBook.getPublicationYear() != updatedBook.getPublicationYear()) {
+            } else if (!currentBook.getPublicationYear().equals(updatedBook.getPublicationYear())) {
                 currentBook.setPublicationYear(updatedBook.getPublicationYear());
                 fieldsUpdated++;
                 updated = true;
@@ -132,10 +128,10 @@ public class BookRepository {
         }
 
         // Validate price
-        if (currentBook.getPrice() != updatedBook.getPrice()) {
+        if (updatedBook.getPrice() != null) {
             if (updatedBook.getPrice() <= 0) {
                 throw new InvalidInputException("Price cannot be negative or equal to 0.");
-            } else {
+            } else if (!currentBook.getPrice().equals(updatedBook.getPrice())) {
                 currentBook.setPrice(updatedBook.getPrice());
                 fieldsUpdated++;
                 updated = true;
@@ -143,10 +139,10 @@ public class BookRepository {
         }
 
         // Validate stock
-        if (currentBook.getStock() != updatedBook.getStock()) {
+        if (updatedBook.getStock() != null) {
             if (updatedBook.getStock() < 0) {
                 throw new InvalidInputException("Stock cannot be negative.");
-            } else {
+            } else if (!currentBook.getStock().equals(updatedBook.getStock())) {
                 currentBook.setStock(updatedBook.getStock());
                 fieldsUpdated++;
                 updated = true;

@@ -1,3 +1,7 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 package com.example.bookstore;
 
 import com.example.bookstore.exception.mapper.AuthorNotFoundExceptionMapper;
@@ -24,52 +28,48 @@ import com.example.bookstore.resources.CartResource;
 import com.example.bookstore.resources.CustomerBaseResource;
 import com.example.bookstore.resources.CustomerIdResource;
 import com.example.bookstore.resources.CustomerOrderResource;
-import javax.ws.rs.ApplicationPath;
-import javax.ws.rs.core.Application;
-import java.util.HashSet;
-import java.util.Set;
 import org.glassfish.jersey.jackson.internal.jackson.jaxrs.json.JacksonJaxbJsonProvider;
+import org.glassfish.jersey.server.ResourceConfig;
 
-@ApplicationPath("api")
-public class MyApplication extends Application {
+/**
+ *
+ * @author HP
+ */
+public class MyApplicationConfig extends ResourceConfig{
 
-    @Override
-    public Set<Class<?>> getClasses() {
-        Set<Class<?>> classes = new HashSet<>();
-
-        // Resources
-        classes.add(AuthorIdResource.class);
-        classes.add(AuthorBaseResource.class);
-        classes.add(BookBaseResource.class);
-        classes.add(BookIdResource.class);
-        classes.add(CustomerBaseResource.class);
-        classes.add(CustomerIdResource.class);
-        classes.add(CartResource.class);
-        classes.add(CustomerOrderResource.class);
+    public MyApplicationConfig() {
+        register(AuthorIdResource.class);
+        register(AuthorBaseResource.class);
+        register(BookBaseResource.class);
+        register(BookIdResource.class);
+        register(CustomerBaseResource.class);
+        register(CustomerIdResource.class);
+        register(CartResource.class);
+        register(CustomerOrderResource.class);
 
         // Filters
-        classes.add(TrailingSlashFilter.class);
-        classes.add(RequestLoggingFilter.class);
-        classes.add(ResponseLoggingFilter.class);
+        register(TrailingSlashFilter.class);
+        register(RequestLoggingFilter.class);
+        register(ResponseLoggingFilter.class);
 
         // Exception mappers
-        classes.add(BookNotFoundExceptionMapper.class);
-        classes.add(AuthorNotFoundExceptionMapper.class);
-        classes.add(CustomerNotFoundExceptionMapper.class);
-        classes.add(InvalidInputExceptionMapper.class);
-        classes.add(OutOfStockExceptionMapper.class);
-        classes.add(OrderNotFoundExceptionMapper.class);
-        classes.add(CartItemExistsExceptionMapper.class);
-        classes.add(CartItemNotFoundExceptionMapper.class);
-        classes.add(CartItemsNotFoundExceptionMapper.class);
-        classes.add(UnrecognizedFieldExceptionMapper.class);
+        register(BookNotFoundExceptionMapper.class);
+        register(AuthorNotFoundExceptionMapper.class);
+        register(CustomerNotFoundExceptionMapper.class);
+        register(InvalidInputExceptionMapper.class);
+        register(OutOfStockExceptionMapper.class);
+        register(OrderNotFoundExceptionMapper.class);
+        register(CartItemExistsExceptionMapper.class);
+        register(CartItemNotFoundExceptionMapper.class);
+        register(CartItemsNotFoundExceptionMapper.class);
+        register(UnrecognizedFieldExceptionMapper.class);
 
-        classes.add(GenericExceptionMapper.class);
-        classes.add(JsonProcessingExceptionMapper.class);
-        classes.add(JsonProcessingExceptionMapper.class);
-        classes.add(WebApplicationExceptionMapper.class);
-        classes.add(JacksonJaxbJsonProvider.class);
-
-        return classes;
+        register(GenericExceptionMapper.class);
+        register(JsonProcessingExceptionMapper.class);
+        register(JsonProcessingExceptionMapper.class);
+        register(WebApplicationExceptionMapper.class);
+        
+        register(JacksonJaxbJsonProvider.class);
     }
+    
 }

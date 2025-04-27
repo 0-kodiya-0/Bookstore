@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.example.bookstore.models;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -9,17 +5,13 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- *
- * @author HP
- */
 public class Order {
     private Long id;
     private Long customerId;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime orderDate;
     private List<OrderItem> items;
-    private double totalAmount;
+    private Double totalAmount;  // Changed from double to Double
     
     public Order() {
         // Default constructor for JAX-RS
@@ -67,11 +59,11 @@ public class Order {
         this.items = items;
     }
     
-    public double getTotalAmount() {
+    public Double getTotalAmount() {
         return totalAmount;
     }
     
-    public void setTotalAmount(double totalAmount) {
+    public void setTotalAmount(Double totalAmount) {
         this.totalAmount = totalAmount;
     }
     

@@ -14,10 +14,6 @@ import com.example.bookstore.models.UpdateResponse;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- *
- * @author HP
- */
 public class CartRepository {
 
     private static final Map<Long, Cart> carts = new ConcurrentHashMap<>();
@@ -39,7 +35,6 @@ public class CartRepository {
             throw new CustomerNotFoundException(customerId);
         }
 
-        // Validate quantity
         if (item.getQuantity() <= 0) {
             throw new InvalidInputException("Quantity cannot be negative or equal to 0.");
         }
@@ -82,6 +77,9 @@ public class CartRepository {
     }
 
     public synchronized UpdateResponse<Cart> updateCartItemQuantity(Long customerId, Long bookId, CartItem item) {
+        if (item.getQuantity() == null) {
+            throw new InvalidInputException("Quantity cannot be empty.");
+        }
         if (item.getQuantity() <= 0) {
             throw new InvalidInputException("Quantity must be positive or greater than 0.");
         }

@@ -5,10 +5,12 @@ com\example\bookstore\models\Author.class
 com\example\bookstore\resources\BookBaseResource.class
 com\example\bookstore\exception\mapper\AuthorNotFoundExceptionMapper.class
 com\example\bookstore\models\OrderItem.class
+com\example\bookstore\config\LoggingConfig$CustomFormatter.class
 com\example\bookstore\exception\CartItemsNotFoundException.class
 com\example\bookstore\exception\CartItemNotFoundException.class
 com\example\bookstore\repository\BookRepository.class
 com\example\bookstore\exception\UnrecognizedFieldException.class
+com\example\bookstore\config\LoggingConfig$1.class
 com\example\bookstore\exception\mapper\OutOfStockExceptionMapper.class
 com\example\bookstore\config\AppConfig.class
 com\example\bookstore\models\DeleteResponse.class
@@ -22,6 +24,7 @@ com\example\bookstore\exception\mapper\CustomerNotFoundExceptionMapper.class
 com\example\bookstore\models\Order.class
 com\example\bookstore\exception\mapper\BookNotFoundExceptionMapper.class
 com\example\bookstore\MyApplication.class
+com\example\bookstore\config\LoggingConfig.class
 com\example\bookstore\models\CartItem.class
 com\example\bookstore\models\ErrorResponse.class
 com\example\bookstore\resources\CustomerBaseResource.class
@@ -33,6 +36,7 @@ com\example\bookstore\resources\CustomerOrderResource.class
 com\example\bookstore\exception\InvalidInputException.class
 com\example\bookstore\models\Customer.class
 com\example\bookstore\exception\AuthorNotFoundException.class
+com\example\bookstore\filters\RequestLoggingFilter.class
 com\example\bookstore\filters\TrailingSlashFilter.class
 com\example\bookstore\exception\mapper\UnrecognizedFieldExceptionMapper.class
 com\example\bookstore\exception\CustomerNotFoundException.class
@@ -42,8 +46,10 @@ com\example\bookstore\resources\CustomerIdResource.class
 com\example\bookstore\exception\CartItemExistsException.class
 com\example\bookstore\exception\BookNotFoundException.class
 com\example\bookstore\exception\mapper\CartItemNotFoundExceptionMapper.class
+com\example\bookstore\MyApplicationConfig.class
 com\example\bookstore\models\Cart.class
 com\example\bookstore\repository\CustomerRepository.class
 com\example\bookstore\exception\mapper\CartItemExistsExceptionMapper.class
 com\example\bookstore\resources\AuthorIdResource.class
+com\example\bookstore\filters\ResponseLoggingFilter.class
 com\example\bookstore\resources\AuthorBaseResource.class

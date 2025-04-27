@@ -18,55 +18,72 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Path("/authors/{id}")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class AuthorIdResource {
 
+    private static final Logger LOGGER = Logger.getLogger(AuthorIdResource.class.getName());
     private final AuthorRepository authorRepository = AppConfig.getAuthorRepository();
     private final BookRepository bookRepository = AppConfig.getBookRepository();
 
     @GET
     public Author getAuthorById(@PathParam("id") String idString) {
+        LOGGER.log(Level.INFO, "REST - Getting author by ID: {0}", idString);
         Long id = validateAndParseId(idString);
-        return authorRepository.getAuthorById(id);
+        Author author = authorRepository.getAuthorById(id);
+        LOGGER.log(Level.INFO, "REST - Retrieved author: {0}", author.getName());
+        return author;
     }
 
     @PUT
     public Response updateAuthor(@PathParam("id") String idString, Author author) {
+        LOGGER.log(Level.INFO, "REST - Updating author with ID: {0}", idString);
         Long id = validateAndParseId(idString);
         UpdateResponse<Author> updateResponse = authorRepository.updateAuthor(id, author);
+        LOGGER.log(Level.INFO, "REST - Author updated successfully. Fields updated: {0}", updateResponse.getFieldsUpdated());
         return Response.ok(updateResponse).build();
     }
 
     @DELETE
     public Response deleteAuthor(@PathParam("id") String idString) {
+        LOGGER.log(Level.INFO, "REST - Deleting author with ID: {0}", idString);
         Long id = validateAndParseId(idString);
         DeleteResponse deleteResponse = authorRepository.deleteAuthor(id);
+        LOGGER.log(Level.INFO, "REST - Author deleted successfully with ID: {0}", id);
         return Response.ok(deleteResponse).build();
     }
 
     @GET
     @Path("/books")
     public List<Book> getAuthorBooks(@PathParam("id") String idString) {
+        LOGGER.log(Level.INFO, "REST - Getting books for author ID: {0}", idString);
         Long id = validateAndParseId(idString);
         // Verify author exists
         authorRepository.getAuthorById(id);
         
         // Get books by author
-        return bookRepository.getBooksByAuthorId(id);
+        List<Book> books = bookRepository.getBooksByAuthorId(id);
+        LOGGER.log(Level.INFO, "REST - Retrieved {0} books for author ID: {1}", new Object[]{books.size(), id});
+        return books;
     }
 
     private Long validateAndParseId(String idString) {
         // For /authors/, idString will be empty string
         if (idString == null || idString.trim().isEmpty()) {
+            LOGGER.warning("REST - Author ID is empty");
             throw new InvalidInputException("Author ID cannot be empty.");
         }
         
         try {
-            return Long.parseLong(idString.trim());
+            Long id = Long.valueOf(idString.trim());
+            LOGGER.log(Level.FINE, "REST - Parsed author ID: {0}", id);
+            return id;
         } catch (NumberFormatException e) {
+            LOGGER.log(Level.WARNING, "REST - Invalid author ID format: {0}", idString);
             throw new InvalidInputException("Author ID must be a valid number.");
         }
     }

@@ -1,19 +1,17 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.example.bookstore.exception;
 
-/**
- *
- * @author HP
- */
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public class UnrecognizedFieldException extends RuntimeException {
-    private String fieldName;
+    
+    private static final Logger LOGGER = Logger.getLogger(UnrecognizedFieldException.class.getName());
+    private final String fieldName;
     
     public UnrecognizedFieldException(String fieldName, String message) {
         super(message);
         this.fieldName = fieldName;
+        LOGGER.log(Level.WARNING, "UnrecognizedFieldException: {0} [Field: {1}]", new Object[]{message, fieldName});
     }
     
     public String getFieldName() {

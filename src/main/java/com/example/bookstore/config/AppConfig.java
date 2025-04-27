@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.example.bookstore.config;
 
 import com.example.bookstore.repository.AuthorRepository;
@@ -9,13 +5,11 @@ import com.example.bookstore.repository.BookRepository;
 import com.example.bookstore.repository.CartRepository;
 import com.example.bookstore.repository.CustomerRepository;
 import com.example.bookstore.repository.OrderRepository;
+import java.util.logging.Logger;
 
-/**
- *
- * @author HP
- */
 public class AppConfig {
 
+    private static final Logger LOGGER = Logger.getLogger(AppConfig.class.getName());
     private static final AuthorRepository authorRepository = new AuthorRepository();
     private static final BookRepository bookRepository = new BookRepository();
     private static final CartRepository cartRepository = new CartRepository();
@@ -23,6 +17,10 @@ public class AppConfig {
     private static final OrderRepository orderRepository = new OrderRepository();
     
     static {
+        // Initialize logging configuration
+        LoggingConfig.initialize();
+        LOGGER.info("Logging configuration initialized");
+        
         authorRepository.setBookRepository(bookRepository);
         bookRepository.setAuthorRepository(authorRepository);
         cartRepository.setBookRepository(bookRepository);

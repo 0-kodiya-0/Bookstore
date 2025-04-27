@@ -1,28 +1,20 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.example.bookstore.models;
 
-/**
- *
- * @author HP
- */
 public class Book {
 
     private Long id;
     private String title;
     private Long authorId;
     private String isbn;
-    private int publicationYear;
-    private double price;
-    private int stock;
+    private Integer publicationYear;
+    private Double price; 
+    private Integer stock;
 
     public Book() {
         // Default constructor for JAX-RS
     }
 
-    public Book(Long id, String title, Long authorId, String isbn, int publicationYear, double price, int stock) {
+    public Book(Long id, String title, Long authorId, String isbn, Integer publicationYear, Double price, Integer stock) {
         this.id = id;
         this.title = title;
         this.authorId = authorId;
@@ -65,27 +57,27 @@ public class Book {
         this.isbn = isbn;
     }
 
-    public int getPublicationYear() {
+    public Integer getPublicationYear() {
         return publicationYear;
     }
 
-    public void setPublicationYear(int publicationYear) {
+    public void setPublicationYear(Integer publicationYear) {
         this.publicationYear = publicationYear;
     }
 
-    public double getPrice() {
+    public Double getPrice() {
         return price;
     }
 
-    public void setPrice(double price) {
+    public void setPrice(Double price) {
         this.price = price;
     }
 
-    public int getStock() {
+    public Integer getStock() {
         return stock;
     }
 
-    public void setStock(int stock) {
+    public void setStock(Integer stock) {
         this.stock = stock;
     }
 }

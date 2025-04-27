@@ -1,19 +1,19 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.example.bookstore.exception;
 
-/**
- *
- * @author HP
- */
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public class CartItemExistsException extends RuntimeException {
+    
+    private static final Logger LOGGER = Logger.getLogger(CartItemExistsException.class.getName());
+    
     public CartItemExistsException(String message) {
         super(message);
+        LOGGER.log(Level.WARNING, "CartItemExistsException: {0}", message);
     }
     
     public CartItemExistsException(Long bookId) {
         super("Book item with ID " + bookId + " exists.");
+        LOGGER.log(Level.WARNING, "CartItemExistsException: Book item with ID {0} exists.", bookId);
     }
 }
