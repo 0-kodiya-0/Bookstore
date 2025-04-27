@@ -35,7 +35,7 @@ public class BookRepository {
         if (!authorRepository.exists(book.getAuthorId())) {
             throw new AuthorNotFoundException(book.getAuthorId());
         }
-        
+
         int currentYear = Calendar.getInstance().get(Calendar.YEAR);
         if (book.getPublicationYear() > currentYear) {
             throw new InvalidInputException("Publication year cannot be in the future.");
@@ -105,8 +105,10 @@ public class BookRepository {
         int fieldsUpdated = 0;
         boolean updated = false;
 
-        if (updatedBook.getTitle() != null && !updatedBook.getTitle().trim().isEmpty()) {
-            if (!normalizeTitle(currentBook.getTitle()).equals(normalizeTitle(updatedBook.getTitle()))
+        if (updatedBook.getTitle() != null) {
+            if (updatedBook.getTitle().trim().isEmpty()) {
+                throw new InvalidInputException("Book title cannot be empty.");
+            } else if (!normalizeTitle(currentBook.getTitle()).equals(normalizeTitle(updatedBook.getTitle()))
                     && isDuplicateTitle(updatedBook.getTitle())) {
                 throw new InvalidInputException("Update would create a duplicate title.");
             } else if (!currentBook.getTitle().equals(updatedBook.getTitle())) {

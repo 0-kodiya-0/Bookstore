@@ -39,6 +39,7 @@ com\example\bookstore\exception\AuthorNotFoundException.class
 com\example\bookstore\filters\RequestLoggingFilter.class
 com\example\bookstore\filters\TrailingSlashFilter.class
 com\example\bookstore\exception\mapper\UnrecognizedFieldExceptionMapper.class
+com\example\bookstore\config\JacksonFeature.class
 com\example\bookstore\exception\CustomerNotFoundException.class
 com\example\bookstore\exception\OutOfStockException.class
 com\example\bookstore\repository\CartRepository.class

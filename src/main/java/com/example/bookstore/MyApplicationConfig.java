@@ -4,6 +4,7 @@
  */
 package com.example.bookstore;
 
+import com.example.bookstore.config.JacksonFeature;
 import com.example.bookstore.exception.mapper.AuthorNotFoundExceptionMapper;
 import com.example.bookstore.exception.mapper.BookNotFoundExceptionMapper;
 import com.example.bookstore.exception.mapper.CartItemExistsExceptionMapper;
@@ -28,7 +29,6 @@ import com.example.bookstore.resources.CartResource;
 import com.example.bookstore.resources.CustomerBaseResource;
 import com.example.bookstore.resources.CustomerIdResource;
 import com.example.bookstore.resources.CustomerOrderResource;
-import org.glassfish.jersey.jackson.internal.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import org.glassfish.jersey.server.ResourceConfig;
 
 /**
@@ -69,7 +69,7 @@ public class MyApplicationConfig extends ResourceConfig{
         register(JsonProcessingExceptionMapper.class);
         register(WebApplicationExceptionMapper.class);
         
-        register(JacksonJaxbJsonProvider.class);
+        register(JacksonFeature.class);
     }
     
 }

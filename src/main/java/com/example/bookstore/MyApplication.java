@@ -1,5 +1,6 @@
 package com.example.bookstore;
 
+import com.example.bookstore.config.JacksonFeature;
 import com.example.bookstore.exception.mapper.AuthorNotFoundExceptionMapper;
 import com.example.bookstore.exception.mapper.BookNotFoundExceptionMapper;
 import com.example.bookstore.exception.mapper.CartItemExistsExceptionMapper;
@@ -68,7 +69,8 @@ public class MyApplication extends Application {
         classes.add(JsonProcessingExceptionMapper.class);
         classes.add(JsonProcessingExceptionMapper.class);
         classes.add(WebApplicationExceptionMapper.class);
-        classes.add(JacksonJaxbJsonProvider.class);
+        
+        classes.add(JacksonFeature.class);
 
         return classes;
     }

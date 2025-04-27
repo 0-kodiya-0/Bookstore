@@ -81,8 +81,10 @@ public class AuthorRepository {
         int fieldsUpdated = 0;
         boolean updated = false;
 
-        if (updatedAuthor.getName() != null && !updatedAuthor.getName().trim().isEmpty()) {
-            if (!normalizeName(currentAuthor.getName()).equals(normalizeName(updatedAuthor.getName()))
+        if (updatedAuthor.getName() != null) {
+            if (updatedAuthor.getName().trim().isEmpty()) {
+                throw new InvalidInputException("Author name cannot be empty.");
+            } else if (!normalizeName(currentAuthor.getName()).equals(normalizeName(updatedAuthor.getName()))
                     && isDuplicateName(updatedAuthor.getName())) {
                 throw new InvalidInputException("Update would create a duplicate author names.");
             } else if (!currentAuthor.getName().equals(updatedAuthor.getName())) {
@@ -92,8 +94,10 @@ public class AuthorRepository {
             }
         }
 
-        if (updatedAuthor.getBiography() != null && !updatedAuthor.getBiography().trim().isEmpty()) {
-            if (!currentAuthor.getBiography().equals(updatedAuthor.getBiography())) {
+        if (updatedAuthor.getBiography() != null) {
+            if (updatedAuthor.getBiography().trim().isEmpty()) {
+                throw new InvalidInputException("Author biography cannot be empty.");
+            } else if (!currentAuthor.getBiography().equals(updatedAuthor.getBiography())) {
                 currentAuthor.setBiography(updatedAuthor.getBiography());
                 fieldsUpdated++;
                 updated = true;
