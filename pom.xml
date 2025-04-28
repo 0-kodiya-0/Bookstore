@@ -53,5 +53,5 @@
             </plugin>
         </plugins>
     </build>
-    <name>HelloWorld2</name>
+    <name>BookstoreApi</name>
 </project>

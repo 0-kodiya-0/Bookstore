@@ -1,20 +1,12 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.example.bookstore.models;
 
-/**
- *
- * @author HP
- */
 public class Author {
     private Long id;
     private String name;
     private String biography;
     
     public Author() {
-        // Default constructor for JAX-RS
+        
     }
     
     public Author(Long id, String name, String biography) {

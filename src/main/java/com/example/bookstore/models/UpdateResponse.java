@@ -1,20 +1,12 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.example.bookstore.models;
 
-/**
- *
- * @author HP
- */
 public class UpdateResponse<T> {
     private T entity;
     private boolean updated;
     private int fieldsUpdated;
     
     public UpdateResponse() {
-        // Default constructor for JAX-RS
+        
     }
     
     public UpdateResponse(T entity, boolean updated, int fieldsUpdated) {

@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.example.bookstore;
 
 import com.example.bookstore.config.JacksonFeature;
@@ -31,10 +27,6 @@ import com.example.bookstore.resources.CustomerIdResource;
 import com.example.bookstore.resources.CustomerOrderResource;
 import org.glassfish.jersey.server.ResourceConfig;
 
-/**
- *
- * @author HP
- */
 public class MyApplicationConfig extends ResourceConfig{
 
     public MyApplicationConfig() {

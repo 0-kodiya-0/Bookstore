@@ -14,10 +14,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
-/**
- *
- * @author HP
- */
 public class BookRepository {
 
     private static final Map<Long, Book> books = new ConcurrentHashMap<>();

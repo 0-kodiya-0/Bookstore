@@ -49,7 +49,6 @@ public class CustomerIdResource {
     public Response deleteCustomer(@PathParam("id") String idString) {
         LOGGER.log(Level.INFO, "REST - Deleting customer with ID: {0}", idString);
 
-        // Check if id string is empty (including blank spaces)
         if (idString == null || idString.trim().isEmpty()) {
             LOGGER.warning("REST - Delete customer failed: ID is empty");
             throw new InvalidInputException("Customer ID cannot be empty.");
@@ -62,7 +61,6 @@ public class CustomerIdResource {
     }
 
     private Long validateAndParseId(String idString) {
-        // This check is redundant in some cases but ensures consistency
         if (idString == null || idString.trim().isEmpty()) {
             LOGGER.warning("REST - Customer ID is empty");
             throw new InvalidInputException("Customer ID cannot be empty.");

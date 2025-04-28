@@ -28,7 +28,7 @@ public class CartRepository {
         this.customerRepository = customerRepository;
     }
 
-    // Create or get
+    // Create
     public synchronized Cart addOrCreateCart(Long customerId, CartItem item) {
         // Verify customer exists
         if (!customerRepository.exists(customerId)) {
@@ -133,10 +133,8 @@ public class CartRepository {
 
     // Delete
     public synchronized void deleteCart(Long customerId) {
-        // Check if cart exists before trying to access it
         Cart cart = carts.get(customerId);
 
-        // If cart doesn't exist or is empty, just return
         if (cart == null || cart.getItems().size() <= 0) {
             return;
         }

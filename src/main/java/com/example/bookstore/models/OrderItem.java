@@ -8,7 +8,7 @@ public class OrderItem {
     private Double price;
 
     public OrderItem() {
-        // Default constructor for JAX-RS
+        
     }
 
     public OrderItem(Long bookId, String bookTitle, Integer quantity, Double price) {

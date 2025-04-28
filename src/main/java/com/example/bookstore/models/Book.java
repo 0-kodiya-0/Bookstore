@@ -11,7 +11,7 @@ public class Book {
     private Integer stock;
 
     public Book() {
-        // Default constructor for JAX-RS
+        
     }
 
     public Book(Long id, String title, Long authorId, String isbn, Integer publicationYear, Double price, Integer stock) {

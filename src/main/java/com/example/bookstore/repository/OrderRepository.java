@@ -16,10 +16,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
-/**
- *
- * @author HP
- */
 public class OrderRepository {
 
     private static final Map<Long, Order> orders = new ConcurrentHashMap<>();

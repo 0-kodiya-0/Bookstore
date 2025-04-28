@@ -11,10 +11,9 @@ public class Order {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime orderDate;
     private List<OrderItem> items;
-    private Double totalAmount;  // Changed from double to Double
+    private Double totalAmount;
     
     public Order() {
-        // Default constructor for JAX-RS
         this.items = new ArrayList<>();
     }
     

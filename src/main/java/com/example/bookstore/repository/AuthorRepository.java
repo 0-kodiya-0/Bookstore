@@ -12,10 +12,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
-/**
- *
- * @author HP
- */
 public class AuthorRepository {
 
     private static final Map<Long, Author> authors = new ConcurrentHashMap<>();

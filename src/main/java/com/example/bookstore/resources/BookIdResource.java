@@ -55,7 +55,6 @@ public class BookIdResource {
     }
 
     private Long validateAndParseId(String idString) {
-        // For /books/, idString will be empty string
         if (idString == null || idString.trim().isEmpty()) {
             LOGGER.warning("REST - Book ID is empty");
             throw new InvalidInputException("Book ID cannot be empty.");

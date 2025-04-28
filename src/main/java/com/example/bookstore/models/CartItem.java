@@ -5,7 +5,7 @@ public class CartItem {
     private Integer quantity;
     
     public CartItem() {
-        // Default constructor for JAX-RS
+        
     }
     
     public CartItem(Long bookId, Integer quantity) {

@@ -1,13 +1,5 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.example.bookstore.models;
 
-/**
- *
- * @author HP
- */
 public class Customer {
 
     private Long id;
@@ -16,7 +8,7 @@ public class Customer {
     private String password;
 
     public Customer() {
-        // Default constructor for JAX-RS
+        
     }
 
     public Customer(Long id, String name, String email, String password) {

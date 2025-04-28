@@ -14,14 +14,6 @@ public class WebApplicationExceptionMapper implements ExceptionMapper<WebApplica
     public Response toResponse(WebApplicationException exception) {
         Response originalResponse = exception.getResponse();
         
-        // This will handle all WebApplicationException subclasses:
-        // - NotFoundException (404)
-        // - BadRequestException (400)
-        // - NotAuthorizedException (401)
-        // - ForbiddenException (403)
-        // - NotAllowedException (405)
-        // - etc.
-        
         ErrorResponse error = new ErrorResponse(
             originalResponse.getStatusInfo().getReasonPhrase(),
             exception.getMessage() != null ? exception.getMessage() : "An error occurred"
