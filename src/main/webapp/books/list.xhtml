@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+    <ui:composition template="/templates/layout.xhtml">
+        <ui:define name="title">Bookstore - Books</ui:define>
+        
+        <ui:define name="content">
+            <div class="container">
+                <div class="page-header">
+                    <h1>Books</h1>
+                    <h:link outcome="/books/create" value="Add New Book" 
+                            styleClass="btn btn-primary"
+                            rendered="#{customerBean.loggedIn and customerBean.loggedInCustomer.name eq 'Admin'}"/>
+                </div>
+                
+                <h:form>
+                    <div class="search-filter">
+                        <div class="search-box">
+                            <h:inputText value="#{bookBean.searchTerm}" styleClass="form-control" />
+                            <h:commandButton value="Search" action="#{bookBean.search}" styleClass="btn btn-primary"/>
+                        </div>
+                        
+                        <div class="filter-box">
+                            <h:selectOneMenu value="#{bookBean.filterAuthorId}" styleClass="form-control">
+                                <f:selectItem itemLabel="All Authors" itemValue=""/>
+                                <f:selectItems value="#{authorBean.authors}" var="author" 
+                                              itemLabel="#{author.name}" itemValue="#{author.id}"/>
+                            </h:selectOneMenu>
+                            <h:commandButton value="Filter" action="#{bookBean.filter}" styleClass="btn btn-secondary"/>
+                        </div>
+                    </div>
+                </h:form>
+                
+                <h:form>
+                    <div class="book-grid">
+                        <ui:repeat value="#{bookBean.books}" var="book">
+                            <div class="book-card">
+                                <div class="book-thumb">
+                                    <h:graphicImage name="images/book-placeholder.jpg" alt="#{book.title}"/>
+                                </div>
+                                <div class="book-info">
+                                    <h3>
+                                        <h:link outcome="/books/details" value="#{book.title}">
+                                            <f:param name="id" value="#{book.id}"/>
+                                        </h:link>
+                                    </h3>
+                                    <p class="author">by 
+                                        <h:link outcome="/authors/details" value="#{bookBean.getAuthorName(book.authorId)}">
+                                            <f:param name="id" value="#{book.authorId}"/>
+                                        </h:link>
+                                    </p>
+                                    <p class="year">Published: #{book.publicationYear}</p>
+                                    <p class="price">$#{book.price}</p>
+                                    <p class="stock">#{book.stock} in stock</p>
+                                    
+                                    <div class="action-buttons">
+                                        <h:commandButton value="Add to Cart" 
+                                                        action="#{cartBean.addToCart(book.id)}"
+                                                        styleClass="btn btn-primary"
+                                                        rendered="#{book.stock > 0}"/>
+                                        <h:outputText value="Out of Stock" styleClass="out-of-stock"
+                                                    rendered="#{book.stock == 0}"/>
+                                        
+                                        <h:panelGroup rendered="#{customerBean.loggedIn and customerBean.loggedInCustomer.name eq 'Admin'}">
+                                            <h:link outcome="/books/edit" styleClass="btn btn-secondary">
+                                                <f:param name="id" value="#{book.id}"/>
+                                                Edit
+                                            </h:link>
+                                            <h:commandButton value="Delete" 
+                                                            action="#{bookBean.deleteBook(book.id)}"
+                                                            styleClass="btn btn-danger"
+                                                            onclick="return confirm('Are you sure you want to delete this book?')"/>
+                                        </h:panelGroup>
+                                    </div>
+                                </div>
+                            </div>
+                        </ui:repeat>
+                    </div>
+                </h:form>
+            </div>
+        </ui:define>
+    </ui:composition>
+</html>

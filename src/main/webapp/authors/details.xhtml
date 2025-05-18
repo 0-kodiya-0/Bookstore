@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+    <ui:composition template="/templates/layout.xhtml">
+        <ui:define name="title">Bookstore - Author Details</ui:define>
+        
+        <f:metadata>
+            <f:viewParam name="id" value="#{authorBean.author.id}"/>
+            <f:event type="preRenderView" listener="#{authorBean.loadAuthor(authorBean.author.id)}"/>
+            <f:event type="preRenderView" listener="#{authorBean.loadAuthorBooks(authorBean.author.id)}"/>
+        </f:metadata>
+        
+        <ui:define name="content">
+            <div class="container">
+                <div class="author-details">
+                    <div class="author-image">
+                        <h:graphicImage name="images/author-large-placeholder.jpg" alt="#{authorBean.author.name}"/>
+                    </div>
+                    
+                    <div class="author-info">
+                        <h1 class="author-name">#{authorBean.author.name}</h1>
+                        
+                        <h3>Biography</h3>
+                        <div class="author-bio">
+                            <p>#{authorBean.author.biography}</p>
+                        </div>
+                        
+                        <h:form rendered="#{customerBean.loggedIn and customerBean.loggedInCustomer.name eq 'Admin'}">
+                            <div class="author-actions">
+                                <h:link outcome="/authors/edit" styleClass="btn btn-secondary">
+                                    <f:param name="id" value="#{authorBean.author.id}"/>
+                                    Edit
+                                </h:link>
+                                <h:commandButton value="Delete" 
+                                                action="#{authorBean.deleteAuthor(authorBean.author.id)}"
+                                                styleClass="btn btn-danger"
+                                                onclick="return confirm('Are you sure you want to delete this author?')"/>
+                            </div>
+                        </h:form>
+                    </div>
+                </div>
+                
+                <h2 class="section-title">Books by #{authorBean.author.name}</h2>
+                
+                <h:form>
+                    <div class="book-grid">
+                        <ui:repeat value="#{authorBean.authorBooks}" var="book">
+                            <div class="book-card">
+                                <div class="book-thumb">
+                                    <h:graphicImage name="images/book-placeholder.jpg" alt="#{book.title}"/>
+                                </div>
+                                <div class="book-info">
+                                    <h3>
+                                        <h:link outcome="/books/details" value="#{book.title}">
+                                            <f:param name="id" value="#{book.id}"/>
+                                        </h:link>
+                                    </h3>
+                                    <p class="year">Published: #{book.publicationYear}</p>
+                                    <p class="price">$#{book.price}</p>
+                                    <p class="stock">#{book.stock} in stock</p>
+                                    
+                                    <div class="action-buttons">
+                                        <h:commandButton value="Add to Cart" 
+                                                        action="#{cartBean.addToCart(book.id)}"
+                                                        styleClass="btn btn-primary"
+                                                        rendered="#{book.stock > 0}"/>
+                                        <h:outputText value="Out of Stock" styleClass="out-of-stock"
+                                                    rendered="#{book.stock == 0}"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </ui:repeat>
+                    </div>
+                    
+                    <h:outputText value="No books found for this author." rendered="#{empty authorBean.authorBooks}" styleClass="no-results"/>
+                </h:form>
+                
+                <div class="back-link">
+                    <h:link outcome="/authors/list" value="← Back to Authors"/>
+                </div>
+            </div>
+        </ui:define>
+    </ui:composition>
+</html>

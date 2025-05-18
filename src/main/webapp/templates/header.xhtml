@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+    <ui:composition>
+        <div class="header-container">
+            <div class="logo">
+                <h:link outcome="/index">
+                    <h:graphicImage name="images/logo.png" alt="Bookstore Logo" width="150"/>
+                </h:link>
+            </div>
+            
+            <div class="navigation">
+                <ul class="nav-menu">
+                    <li><h:link outcome="/index" value="Home"/></li>
+                    <li><h:link outcome="/books/list" value="Books"/></li>
+                    <li><h:link outcome="/authors/list" value="Authors"/></li>
+                    <h:panelGroup rendered="#{customerBean.loggedIn}">
+                        <li><h:link outcome="/cart/view" value="Cart"/></li>
+                        <li><h:link outcome="/orders/list" value="My Orders"/></li>
+                    </h:panelGroup>
+                </ul>
+            </div>
+            
+            <div class="user-actions">
+                <h:form>
+                    <h:panelGroup rendered="#{!customerBean.loggedIn}">
+                        <h:link outcome="/customers/login" value="Login" styleClass="btn btn-primary"/>
+                        <h:link outcome="/customers/register" value="Register" styleClass="btn btn-outline"/>
+                    </h:panelGroup>
+                    
+                    <h:panelGroup rendered="#{customerBean.loggedIn}">
+                        <div class="user-info">
+                            <span>Welcome, #{customerBean.loggedInCustomer.name}!</span>
+                            <h:link outcome="/customers/profile" value="My Profile" styleClass="btn btn-sm"/>
+                            <h:commandLink action="#{customerBean.logout}" value="Logout" styleClass="btn btn-danger btn-sm"/>
+                        </div>
+                    </h:panelGroup>
+                </h:form>
+            </div>
+        </div>
+    </ui:composition>
+</html>

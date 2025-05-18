@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+    <ui:composition template="/templates/layout.xhtml">
+        <ui:define name="title">Bookstore - Order Details</ui:define>
+        
+        <f:metadata>
+            <f:viewParam name="id" value="#{orderBean.order.id}"/>
+            <f:event type="preRenderView" listener="#{orderBean.loadOrder(customerBean.loggedInCustomer.id, orderBean.order.id)}"/>
+        </f:metadata>
+        
+        <ui:define name="content">
+            <div class="container">
+                <div class="page-header">
+                    <h1>Order ##{orderBean.order.id}</h1>
+                </div>
+                
+                <div class="order-details">
+                    <div class="order-meta">
+                        <div class="meta-item">
+                            <span class="label">Order Date:</span>
+                            <span class="value">
+                                <h:outputText value="#{orderBean.order.orderDate}">
+                                    <f:convertDateTime pattern="MM/dd/yyyy HH:mm"/>
+                                </h:outputText>
+                            </span>
+                        </div>
+                        
+                        <div class="meta-item">
+                            <span class="label">Total Amount:</span>
+                            <span class="value price">$#{orderBean.order.totalAmount}</span>
+                        </div>
+                    </div>
+                    
+                    <h3>Order Items</h3>
+                    
+                    <div class="order-items-list">
+                        <div class="order-item-header">
+                            <div class="order-item-book">Book</div>
+                            <div class="order-item-price">Price</div>
+                            <div class="order-item-quantity">Quantity</div>
+                            <div class="order-item-total">Total</div>
+                        </div>
+                        
+                        <ui:repeat value="#{orderBean.order.items}" var="item">
+                            <div class="order-item">
+                                <div class="order-item-book">
+                                    #{item.bookTitle}
+                                </div>
+                                
+                                <div class="order-item-price">
+                                    $#{item.price}
+                                </div>
+                                
+                                <div class="order-item-quantity">
+                                    #{item.quantity}
+                                </div>
+                                
+                                <div class="order-item-total">
+                                    $#{item.subtotal}
+                                </div>
+                            </div>
+                        </ui:repeat>
+                    </div>
+                    
+                    <div class="order-summary">
+                        <div class="order-total">
+                            <span>Total:</span>
+                            <span class="price">$#{orderBean.order.totalAmount}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="back-link">
+                    <h:link outcome="/orders/list" value="← Back to Orders"/>
+                </div>
+            </div>
+        </ui:define>
+    </ui:composition>
+</html>

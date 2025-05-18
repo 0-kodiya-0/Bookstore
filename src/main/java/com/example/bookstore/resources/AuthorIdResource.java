@@ -72,7 +72,6 @@ public class AuthorIdResource {
     }
 
     private Long validateAndParseId(String idString) {
-        // For /authors/, idString will be empty string
         if (idString == null || idString.trim().isEmpty()) {
             LOGGER.warning("REST - Author ID is empty");
             throw new InvalidInputException("Author ID cannot be empty.");

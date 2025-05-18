@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://xmlns.jcp.org/jsf/passthrough">
+    <h:head>
+        <meta charset="UTF-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <title><ui:insert name="title">Bookstore Application</ui:insert></title>
+        <h:outputStylesheet name="css/styles.css"/>
+    </h:head>
+    <h:body>
+        <div id="page">
+            <div id="header">
+                <ui:include src="/templates/header.xhtml"/>
+            </div>
+            
+            <h:messages globalOnly="true" styleClass="alert alert-info" errorClass="alert alert-danger"/>
+            
+            <div id="content">
+                <ui:insert name="content">
+                    Default content
+                </ui:insert>
+            </div>
+            
+            <div id="footer">
+                <ui:include src="/templates/footer.xhtml"/>
+            </div>
+        </div>
+        <h:outputScript name="js/scripts.js"/>
+    </h:body>
+</html>

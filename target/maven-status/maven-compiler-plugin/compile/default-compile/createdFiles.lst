@@ -1,5 +1,6 @@
 com\example\bookstore\exception\mapper\WebApplicationExceptionMapper.class
 com\example\bookstore\exception\mapper\GenericExceptionMapper.class
+com\example\bookstore\utils\AuthPhaseListener.class
 com\example\bookstore\exception\mapper\CartItemsNotFoundExceptionMapper.class
 com\example\bookstore\models\Author.class
 com\example\bookstore\resources\BookBaseResource.class
@@ -7,12 +8,15 @@ com\example\bookstore\exception\mapper\AuthorNotFoundExceptionMapper.class
 com\example\bookstore\models\OrderItem.class
 com\example\bookstore\config\LoggingConfig$CustomFormatter.class
 com\example\bookstore\exception\CartItemsNotFoundException.class
+com\example\bookstore\bean\BookBean.class
 com\example\bookstore\exception\CartItemNotFoundException.class
 com\example\bookstore\repository\BookRepository.class
 com\example\bookstore\exception\UnrecognizedFieldException.class
+com\example\bookstore\utils\RestClient.class
 com\example\bookstore\config\LoggingConfig$1.class
 com\example\bookstore\exception\mapper\OutOfStockExceptionMapper.class
 com\example\bookstore\config\AppConfig.class
+com\example\bookstore\utils\RestClient$ErrorResponse.class
 com\example\bookstore\models\DeleteResponse.class
 com\example\bookstore\repository\OrderRepository.class
 com\example\bookstore\exception\mapper\InvalidInputExceptionMapper.class
@@ -29,6 +33,7 @@ com\example\bookstore\models\CartItem.class
 com\example\bookstore\models\ErrorResponse.class
 com\example\bookstore\resources\CustomerBaseResource.class
 com\example\bookstore\exception\mapper\JsonProcessingExceptionMapper.class
+com\example\bookstore\bean\CartBean.class
 com\example\bookstore\resources\BookIdResource.class
 com\example\bookstore\exception\mapper\OrderNotFoundExceptionMapper.class
 com\example\bookstore\models\UpdateResponse.class
@@ -40,11 +45,14 @@ com\example\bookstore\filters\RequestLoggingFilter.class
 com\example\bookstore\filters\TrailingSlashFilter.class
 com\example\bookstore\exception\mapper\UnrecognizedFieldExceptionMapper.class
 com\example\bookstore\config\JacksonFeature.class
+com\example\bookstore\bean\CustomerBean.class
 com\example\bookstore\exception\CustomerNotFoundException.class
 com\example\bookstore\exception\OutOfStockException.class
+com\example\bookstore\bean\OrderBean.class
 com\example\bookstore\repository\CartRepository.class
 com\example\bookstore\resources\CustomerIdResource.class
 com\example\bookstore\exception\CartItemExistsException.class
+com\example\bookstore\bean\AuthorBean.class
 com\example\bookstore\exception\BookNotFoundException.class
 com\example\bookstore\exception\mapper\CartItemNotFoundExceptionMapper.class
 com\example\bookstore\MyApplicationConfig.class
