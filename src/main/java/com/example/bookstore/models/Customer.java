@@ -3,7 +3,7 @@ package com.example.bookstore.models;
 import java.io.Serializable;
 
 public class Customer implements Serializable {
-    
+
     private static final long serialVersionUID = 1L;
 
     private Long id;
@@ -12,7 +12,14 @@ public class Customer implements Serializable {
     private String password;
 
     public Customer() {
-        
+
+    }
+
+    public Customer(Customer customer) {
+        this.id = customer.id;
+        this.name = customer.name;
+        this.email = customer.email;
+        this.password = customer.password;
     }
 
     public Customer(Long id, String name, String email, String password) {

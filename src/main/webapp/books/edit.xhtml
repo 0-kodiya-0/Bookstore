@@ -12,69 +12,82 @@
         </f:metadata>
         
         <ui:define name="content">
-            <div class="container">
-                <div class="page-header">
-                    <h1>Edit Book</h1>
-                </div>
+            <div class="max-w-3xl mx-auto px-4 sm:px-6 py-8">
+                <h1 class="text-2xl md:text-3xl font-bold mb-8">Edit Book</h1>
                 
-                <div class="form-container">
-                    <h:form>
-                        <div class="form-group">
-                            <h:outputLabel for="title" value="Title:"/>
-                            <h:inputText id="title" value="#{bookBean.book.title}" required="true" 
-                                         requiredMessage="Title is required" styleClass="form-control"/>
-                            <h:message for="title" styleClass="error-message"/>
-                        </div>
-                        
-                        <div class="form-group">
-                            <h:outputLabel for="authorId" value="Author:"/>
-                            <h:selectOneMenu id="authorId" value="#{bookBean.book.authorId}" required="true"
-                                            requiredMessage="Author is required" styleClass="form-control">
-                                <f:selectItem itemLabel="Select Author" itemValue=""/>
-                                <f:selectItems value="#{authorBean.authors}" var="author"
-                                              itemLabel="#{author.name}" itemValue="#{author.id}"/>
-                            </h:selectOneMenu>
-                            <h:message for="authorId" styleClass="error-message"/>
-                        </div>
-                        
-                        <div class="form-group">
-                            <h:outputLabel for="isbn" value="ISBN:"/>
-                            <h:inputText id="isbn" value="#{bookBean.book.isbn}" styleClass="form-control"/>
-                            <h:message for="isbn" styleClass="error-message"/>
-                        </div>
-                        
-                        <div class="form-group">
-                            <h:outputLabel for="publicationYear" value="Publication Year:"/>
-                            <h:inputText id="publicationYear" value="#{bookBean.book.publicationYear}" required="true"
-                                         requiredMessage="Publication year is required" styleClass="form-control">
-                                <f:validateLongRange minimum="1000" maximum="#{java.time.Year.now().getValue()}"/>
-                            </h:inputText>
-                            <h:message for="publicationYear" styleClass="error-message"/>
-                        </div>
-                        
-                        <div class="form-group">
-                            <h:outputLabel for="price" value="Price:"/>
-                            <h:inputText id="price" value="#{bookBean.book.price}" required="true"
-                                         requiredMessage="Price is required" styleClass="form-control">
-                                <f:validateDoubleRange minimum="0.01"/>
-                            </h:inputText>
-                            <h:message for="price" styleClass="error-message"/>
-                        </div>
-                        
-                        <div class="form-group">
-                            <h:outputLabel for="stock" value="Stock:"/>
-                            <h:inputText id="stock" value="#{bookBean.book.stock}" required="true"
-                                         requiredMessage="Stock is required" styleClass="form-control">
-                                <f:validateLongRange minimum="0"/>
-                            </h:inputText>
-                            <h:message for="stock" styleClass="error-message"/>
-                        </div>
-                        
-                        <div class="form-actions">
-                            <h:commandButton value="Update" action="#{bookBean.updateBook()}" styleClass="btn btn-primary"/>
-                            <h:link outcome="/books/list" value="Cancel" styleClass="btn btn-secondary"/>
-                        </div>
-                    </h:form>
+                <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                    <div class="p-6">
+                        <h:form styleClass="space-y-6">
+                            <div>
+                                <h:outputLabel for="title" value="Title:" styleClass="block text-sm font-medium text-gray-700 mb-1"/>
+                                <h:inputText id="title" value="#{bookBean.book.title}" required="true" 
+                                           requiredMessage="Title is required" 
+                                           styleClass="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary"/>
+                                <h:message for="title" styleClass="mt-1 text-sm text-red-600"/>
+                            </div>
+                            
+                            <div>
+                                <h:outputLabel for="authorId" value="Author:" styleClass="block text-sm font-medium text-gray-700 mb-1"/>
+                                <h:selectOneMenu id="authorId" value="#{bookBean.book.authorId}" required="true"
+                                                requiredMessage="Author is required" 
+                                                styleClass="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary">
+                                    <f:selectItem itemLabel="Select Author" itemValue=""/>
+                                    <f:selectItems value="#{authorBean.authors}" var="author"
+                                                  itemLabel="#{author.name}" itemValue="#{author.id}"/>
+                                </h:selectOneMenu>
+                                <h:message for="authorId" styleClass="mt-1 text-sm text-red-600"/>
+                            </div>
+                            
+                            <div>
+                                <h:outputLabel for="isbn" value="ISBN:" styleClass="block text-sm font-medium text-gray-700 mb-1"/>
+                                <h:inputText id="isbn" value="#{bookBean.book.isbn}" 
+                                           styleClass="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary"/>
+                                <h:message for="isbn" styleClass="mt-1 text-sm text-red-600"/>
+                            </div>
+                            
+                            <div>
+                                <h:outputLabel for="publicationYear" value="Publication Year:" styleClass="block text-sm font-medium text-gray-700 mb-1"/>
+                                <h:inputText id="publicationYear" value="#{bookBean.book.publicationYear}" required="true"
+                                           requiredMessage="Publication year is required" 
+                                           styleClass="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary">
+                                    <f:validateLongRange minimum="1000" maximum="#{java.time.Year.now().getValue()}"/>
+                                </h:inputText>
+                                <h:message for="publicationYear" styleClass="mt-1 text-sm text-red-600"/>
+                            </div>
+                            
+                            <div>
+                                <h:outputLabel for="price" value="Price:" styleClass="block text-sm font-medium text-gray-700 mb-1"/>
+                                <div class="relative rounded-md shadow-sm">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <span class="text-gray-500 sm:text-sm">$</span>
+                                    </div>
+                                    <h:inputText id="price" value="#{bookBean.book.price}" required="true"
+                                               requiredMessage="Price is required" 
+                                               styleClass="w-full pl-7 px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary">
+                                        <f:validateDoubleRange minimum="0.01"/>
+                                    </h:inputText>
+                                </div>
+                                <h:message for="price" styleClass="mt-1 text-sm text-red-600"/>
+                            </div>
+                            
+                            <div>
+                                <h:outputLabel for="stock" value="Stock:" styleClass="block text-sm font-medium text-gray-700 mb-1"/>
+                                <h:inputText id="stock" value="#{bookBean.book.stock}" required="true"
+                                           requiredMessage="Stock is required" 
+                                           styleClass="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary">
+                                    <f:validateLongRange minimum="0"/>
+                                </h:inputText>
+                                <h:message for="stock" styleClass="mt-1 text-sm text-red-600"/>
+                            </div>
+                            
+                            <div class="flex items-center justify-between pt-4">
+                                <h:commandButton value="Update" action="#{bookBean.updateBook()}" 
+                                               styleClass="inline-flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors"/>
+                                <h:link outcome="/books/list" value="Cancel" 
+                                       styleClass="text-gray-500 hover:text-gray-700 transition-colors"/>
+                            </div>
+                        </h:form>
+                    </div>
                 </div>
             </div>
         </ui:define>

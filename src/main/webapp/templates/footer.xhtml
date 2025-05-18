@@ -3,31 +3,43 @@
       xmlns:h="http://xmlns.jcp.org/jsf/html"
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
     <ui:composition>
-        <div class="footer-container">
-            <div class="footer-content">
-                <div class="footer-section">
-                    <h3>Bookstore</h3>
-                    <p>Your one-stop shop for the best books in town.</p>
+        <div class="bg-gray-800 text-white">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div>
+                        <h3 class="text-xl font-bold mb-4 relative pb-2 after:absolute after:bottom-0 after:left-0 after:w-12 after:h-0.5 after:bg-primary">Bookstore</h3>
+                        <p class="text-gray-300">Your one-stop shop for the best books in town.</p>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-xl font-bold mb-4 relative pb-2 after:absolute after:bottom-0 after:left-0 after:w-12 after:h-0.5 after:bg-primary">Quick Links</h3>
+                        <ul class="space-y-2">
+                            <li><h:link outcome="/index" value="Home" styleClass="text-gray-300 hover:text-white transition-colors"/></li>
+                            <li><h:link outcome="/books/list" value="Books" styleClass="text-gray-300 hover:text-white transition-colors"/></li>
+                            <li><h:link outcome="/authors/list" value="Authors" styleClass="text-gray-300 hover:text-white transition-colors"/></li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-xl font-bold mb-4 relative pb-2 after:absolute after:bottom-0 after:left-0 after:w-12 after:h-0.5 after:bg-primary">Contact Us</h3>
+                        <p class="text-gray-300 flex items-center gap-2 mb-2">
+                            <h:outputText escape="false" value="&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; class=&quot;h-5 w-5&quot; fill=&quot;none&quot; viewBox=&quot;0 0 24 24&quot; stroke=&quot;currentColor&quot;&gt;
+                                &lt;path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; stroke-width=&quot;2&quot; d=&quot;M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z&quot; /&gt;
+                            &lt;/svg&gt;" />
+                            info@bookstore.com
+                        </p>
+                        <p class="text-gray-300 flex items-center gap-2">
+                            <h:outputText escape="false" value="&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; class=&quot;h-5 w-5&quot; fill=&quot;none&quot; viewBox=&quot;0 0 24 24&quot; stroke=&quot;currentColor&quot;&gt;
+                                &lt;path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; stroke-width=&quot;2&quot; d=&quot;M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z&quot; /&gt;
+                            &lt;/svg&gt;" />
+                            +1 (555) 123-4567
+                        </p>
+                    </div>
                 </div>
                 
-                <div class="footer-section">
-                    <h3>Quick Links</h3>
-                    <ul>
-                        <li><h:link outcome="/index" value="Home"/></li>
-                        <li><h:link outcome="/books/list" value="Books"/></li>
-                        <li><h:link outcome="/authors/list" value="Authors"/></li>
-                    </ul>
+                <div class="mt-8 pt-8 border-t border-gray-700 text-center text-gray-400">
+                    <p>&#169; #{java.time.Year.now().getValue()} Bookstore. All rights reserved.</p>
                 </div>
-                
-                <div class="footer-section">
-                    <h3>Contact Us</h3>
-                    <p>Email: info@bookstore.com</p>
-                    <p>Phone: +1 (555) 123-4567</p>
-                </div>
-            </div>
-            
-            <div class="copyright">
-                <p>&#169; #{java.time.Year.now().getValue()} Bookstore. All rights reserved.</p>
             </div>
         </div>
     </ui:composition>

@@ -7,43 +7,49 @@
         <ui:define name="title">Bookstore - Edit Profile</ui:define>
         
         <ui:define name="content">
-            <div class="container">
-                <div class="page-header">
-                    <h1>Edit Profile</h1>
-                </div>
+            <div class="max-w-3xl mx-auto px-4 sm:px-6 py-8">
+                <h1 class="text-2xl md:text-3xl font-bold mb-8">Edit Profile</h1>
                 
-                <div class="form-container">
-                    <h:form>
-                        <div class="form-group">
-                            <h:outputLabel for="name" value="Name:"/>
-                            <h:inputText id="name" value="#{customerBean.loggedInCustomer.name}" required="true" 
-                                         requiredMessage="Name is required" styleClass="form-control"/>
-                            <h:message for="name" styleClass="error-message"/>
-                        </div>
-                        
-                        <div class="form-group">
-                            <h:outputLabel for="email" value="Email:"/>
-                            <h:inputText id="email" value="#{customerBean.loggedInCustomer.email}" required="true" 
-                                         requiredMessage="Email is required" styleClass="form-control">
-                                <f:validateRegex pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"/>
-                            </h:inputText>
-                            <h:message for="email" styleClass="error-message"/>
-                        </div>
-                        
-                        <div class="form-group">
-                            <h:outputLabel for="password" value="Password:"/>
-                            <h:inputSecret id="password" value="#{customerBean.loggedInCustomer.password}" required="true" 
-                                         requiredMessage="Password is required" styleClass="form-control">
-                                <f:validateLength minimum="6"/>
-                            </h:inputSecret>
-                            <h:message for="password" styleClass="error-message"/>
-                        </div>
-                        
-                        <div class="form-actions">
-                            <h:commandButton value="Update" action="#{customerBean.updateProfile()}" styleClass="btn btn-primary"/>
-                            <h:link outcome="/customers/profile" value="Cancel" styleClass="btn btn-secondary"/>
-                        </div>
-                    </h:form>
+                <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                    <div class="p-6">
+                        <h:form styleClass="space-y-6">
+                            <div>
+                                <h:outputLabel for="name" value="Name:" styleClass="block text-sm font-medium text-gray-700 mb-1"/>
+                                <h:inputText id="name" value="#{customerBean.loggedInCustomer.name}" required="true" 
+                                           requiredMessage="Name is required" 
+                                           styleClass="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary"/>
+                                <h:message for="name" styleClass="mt-1 text-sm text-red-600"/>
+                            </div>
+                            
+                            <div>
+                                <h:outputLabel for="email" value="Email:" styleClass="block text-sm font-medium text-gray-700 mb-1"/>
+                                <h:inputText id="email" value="#{customerBean.loggedInCustomer.email}" required="true" 
+                                           requiredMessage="Email is required" 
+                                           styleClass="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary">
+                                    <f:validateRegex pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"/>
+                                </h:inputText>
+                                <h:message for="email" styleClass="mt-1 text-sm text-red-600"/>
+                            </div>
+                            
+                            <div>
+                                <h:outputLabel for="password" value="Password:" styleClass="block text-sm font-medium text-gray-700 mb-1"/>
+                                <h:inputSecret id="password" value="#{customerBean.loggedInCustomer.password}" required="true" 
+                                             requiredMessage="Password is required" 
+                                             styleClass="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary">
+                                    <f:validateLength minimum="6"/>
+                                </h:inputSecret>
+                                <h:message for="password" styleClass="mt-1 text-sm text-red-600"/>
+                                <p class="mt-1 text-xs text-gray-500">Password must be at least 6 characters</p>
+                            </div>
+                            
+                            <div class="flex items-center justify-between pt-4">
+                                <h:commandButton value="Update Profile" action="#{customerBean.updateProfile()}" 
+                                               styleClass="inline-flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors"/>
+                                <h:link outcome="/customers/profile" value="Cancel" 
+                                       styleClass="text-gray-500 hover:text-gray-700 transition-colors"/>
+                            </div>
+                        </h:form>
+                    </div>
                 </div>
             </div>
         </ui:define>

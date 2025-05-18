@@ -13,72 +13,87 @@
         </f:metadata>
         
         <ui:define name="content">
-            <div class="container">
-                <div class="author-details">
-                    <div class="author-image">
-                        <h:graphicImage name="images/author-large-placeholder.jpg" alt="#{authorBean.author.name}"/>
-                    </div>
-                    
-                    <div class="author-info">
-                        <h1 class="author-name">#{authorBean.author.name}</h1>
-                        
-                        <h3>Biography</h3>
-                        <div class="author-bio">
-                            <p>#{authorBean.author.biography}</p>
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+                <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4">
+                        <div class="p-6 flex justify-center md:border-r border-gray-100">
+                            <div class="w-56 h-56 relative">
+                                <h:graphicImage name="images/author-placeholder.jpg" alt="#{authorBean.author.name}"
+                                              styleClass="w-full h-full object-cover rounded-full shadow-md"/>
+                            </div>
                         </div>
                         
-                        <h:form rendered="#{customerBean.loggedIn and customerBean.loggedInCustomer.name eq 'Admin'}">
-                            <div class="author-actions">
-                                <h:link outcome="/authors/edit" styleClass="btn btn-secondary">
-                                    <f:param name="id" value="#{authorBean.author.id}"/>
-                                    Edit
-                                </h:link>
-                                <h:commandButton value="Delete" 
-                                                action="#{authorBean.deleteAuthor(authorBean.author.id)}"
-                                                styleClass="btn btn-danger"
-                                                onclick="return confirm('Are you sure you want to delete this author?')"/>
+                        <div class="p-6 md:col-span-2 lg:col-span-3">
+                            <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-6">#{authorBean.author.name}</h1>
+                            
+                            <h3 class="text-lg font-semibold text-gray-700 mb-2">Biography</h3>
+                            <div class="prose max-w-none text-gray-600 mb-6">
+                                <p>#{authorBean.author.biography}</p>
                             </div>
-                        </h:form>
+                            
+                            <h:form rendered="#{customerBean.loggedIn and customerBean.loggedInCustomer.name eq 'Admin'}" styleClass="mt-6">
+                                <div class="flex flex-wrap gap-3">
+                                    <h:link outcome="/authors/edit" styleClass="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 transition-colors">
+                                        <f:param name="id" value="#{authorBean.author.id}"/>
+                                        Edit Author
+                                    </h:link>
+                                    <h:commandButton value="Delete Author" 
+                                                   action="#{authorBean.deleteAuthor(authorBean.author.id)}"
+                                                   styleClass="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors"
+                                                   onclick="return confirm('Are you sure you want to delete this author?')"/>
+                                </div>
+                            </h:form>
+                        </div>
                     </div>
                 </div>
                 
-                <h2 class="section-title">Books by #{authorBean.author.name}</h2>
+                <h2 class="text-2xl font-bold mt-12 mb-6">Books by #{authorBean.author.name}</h2>
                 
                 <h:form>
-                    <div class="book-grid">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                         <ui:repeat value="#{authorBean.authorBooks}" var="book">
-                            <div class="book-card">
-                                <div class="book-thumb">
-                                    <h:graphicImage name="images/book-placeholder.jpg" alt="#{book.title}"/>
+                            <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                                <div class="h-40 overflow-hidden">
+                                    <h:graphicImage name="images/book-placeholder.jpg" alt="#{book.title}" 
+                                                   styleClass="w-full h-full object-cover hover:scale-105 transition-transform"/>
                                 </div>
-                                <div class="book-info">
-                                    <h3>
-                                        <h:link outcome="/books/details" value="#{book.title}">
+                                <div class="p-4">
+                                    <h3 class="text-lg font-semibold h-14 overflow-hidden line-clamp-2">
+                                        <h:link outcome="/books/details" value="#{book.title}" 
+                                               styleClass="text-gray-800 hover:text-primary transition-colors">
                                             <f:param name="id" value="#{book.id}"/>
                                         </h:link>
                                     </h3>
-                                    <p class="year">Published: #{book.publicationYear}</p>
-                                    <p class="price">$#{book.price}</p>
-                                    <p class="stock">#{book.stock} in stock</p>
+                                    <p class="text-gray-500 text-sm mb-1">Published: #{book.publicationYear}</p>
+                                    <p class="text-primary font-bold text-lg mb-2">$#{book.price}</p>
+                                    <p class="text-sm mb-3">
+                                        <span class="#{book.stock > 0 ? 'text-green-600' : 'text-red-600'}">
+                                            #{book.stock > 0 ? "#{book.stock} in stock" : 'Out of Stock'}
+                                        </span>
+                                    </p>
                                     
-                                    <div class="action-buttons">
+                                    <div class="flex items-center gap-2">
                                         <h:commandButton value="Add to Cart" 
-                                                        action="#{cartBean.addToCart(book.id)}"
-                                                        styleClass="btn btn-primary"
-                                                        rendered="#{book.stock > 0}"/>
-                                        <h:outputText value="Out of Stock" styleClass="out-of-stock"
-                                                    rendered="#{book.stock == 0}"/>
+                                                       action="#{cartBean.addToCart(book.id)}"
+                                                       styleClass="flex-grow bg-primary text-white py-2 px-3 rounded text-center hover:bg-primary-dark transition-colors"
+                                                       rendered="#{book.stock > 0}"/>
+                                        <h:outputText value="Out of Stock" 
+                                                      styleClass="flex-grow block bg-gray-200 text-gray-600 py-2 px-3 rounded text-center"
+                                                      rendered="#{book.stock == 0}"/>
                                     </div>
                                 </div>
                             </div>
                         </ui:repeat>
                     </div>
                     
-                    <h:outputText value="No books found for this author." rendered="#{empty authorBean.authorBooks}" styleClass="no-results"/>
+                    <h:panelGroup layout="block" styleClass="text-center mt-8 text-gray-500" rendered="#{empty authorBean.authorBooks}">
+                        <p class="text-lg font-medium">No books found for this author.</p>
+                    </h:panelGroup>
                 </h:form>
                 
-                <div class="back-link">
-                    <h:link outcome="/authors/list" value="← Back to Authors"/>
+                <div class="mt-8">
+                    <h:link outcome="/authors/list" value="← Back to Authors" 
+                           styleClass="inline-flex items-center text-gray-600 hover:text-primary transition-colors"/>
                 </div>
             </div>
         </ui:define>

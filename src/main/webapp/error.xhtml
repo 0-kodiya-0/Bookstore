@@ -7,21 +7,24 @@
         <ui:define name="title">Bookstore - Error</ui:define>
         
         <ui:define name="content">
-            <div class="container">
-                <div class="error-container">
-                    <div class="error-icon">
-                        <i class="fa fa-exclamation-triangle fa-5x"></i>
+            <div class="max-w-3xl mx-auto px-4 sm:px-6 py-16">
+                <div class="bg-white rounded-lg shadow-md p-8 text-center">
+                    <div class="inline-block p-6 rounded-full bg-red-100 mb-6">
+                        <h:outputText escape="false" value="&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; class=&quot;h-16 w-16 text-red-600&quot; fill=&quot;none&quot; viewBox=&quot;0 0 24 24&quot; stroke=&quot;currentColor&quot;&gt;
+                            &lt;path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; stroke-width=&quot;2&quot; d=&quot;M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z&quot; /&gt;
+                        &lt;/svg&gt;" />
                     </div>
                     
-                    <h1 class="error-title">Oops! Something went wrong.</h1>
+                    <h1 class="text-3xl font-bold text-gray-900 mb-4">Oops! Something went wrong.</h1>
                     
-                    <div class="error-message">
-                        <p>We're sorry, but an error has occurred while processing your request.</p>
+                    <div class="text-gray-600 mb-8">
+                        <p class="mb-2">We're sorry, but an error has occurred while processing your request.</p>
                         <p>Please try again later or contact our support team if the problem persists.</p>
                     </div>
                     
-                    <div class="error-actions">
-                        <h:link outcome="/index" value="Return to Home" styleClass="btn btn-primary btn-lg"/>
+                    <div>
+                        <h:link outcome="/index" value="Return to Home" 
+                               styleClass="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors"/>
                     </div>
                 </div>
             </div>

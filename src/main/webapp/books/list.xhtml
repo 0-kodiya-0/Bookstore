@@ -7,77 +7,111 @@
         <ui:define name="title">Bookstore - Books</ui:define>
         
         <ui:define name="content">
-            <div class="container">
-                <div class="page-header">
-                    <h1>Books</h1>
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+                    <h1 class="text-2xl md:text-3xl font-bold mb-4 sm:mb-0">Books</h1>
                     <h:link outcome="/books/create" value="Add New Book" 
-                            styleClass="btn btn-primary"
-                            rendered="#{customerBean.loggedIn and customerBean.loggedInCustomer.name eq 'Admin'}"/>
+                            styleClass="bg-primary text-white px-4 py-2 rounded hover:bg-primary-dark transition-colors inline-flex items-center"
+                            rendered="#{customerBean.loggedIn and customerBean.loggedInCustomer.name eq 'Admin'}">
+                        <h:outputText escape="false" value="&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; class=&quot;h-5 w-5 mr-1&quot; viewBox=&quot;0 0 20 20&quot; fill=&quot;currentColor&quot;&gt;
+                            &lt;path fill-rule=&quot;evenodd&quot; d=&quot;M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z&quot; clip-rule=&quot;evenodd&quot; /&gt;
+                        &lt;/svg&gt;" />
+                        Add New Book
+                    </h:link>
                 </div>
                 
                 <h:form>
-                    <div class="search-filter">
-                        <div class="search-box">
-                            <h:inputText value="#{bookBean.searchTerm}" styleClass="form-control" />
-                            <h:commandButton value="Search" action="#{bookBean.search}" styleClass="btn btn-primary"/>
-                        </div>
-                        
-                        <div class="filter-box">
-                            <h:selectOneMenu value="#{bookBean.filterAuthorId}" styleClass="form-control">
-                                <f:selectItem itemLabel="All Authors" itemValue=""/>
-                                <f:selectItems value="#{authorBean.authors}" var="author" 
-                                              itemLabel="#{author.name}" itemValue="#{author.id}"/>
-                            </h:selectOneMenu>
-                            <h:commandButton value="Filter" action="#{bookBean.filter}" styleClass="btn btn-secondary"/>
+                    <div class="bg-white rounded-lg shadow-sm p-4 mb-6">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="md:col-span-2">
+                                <div class="flex">
+                                    <h:inputText value="#{bookBean.searchTerm}" 
+                                               styleClass="w-full rounded-l border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 px-4 py-2 border">
+                                        <f:passThroughAttribute name="placeholder" value="Search books..." />
+                                    </h:inputText>
+                                    <h:commandButton value="Search" action="#{bookBean.search}" 
+                                                   styleClass="bg-primary text-white px-4 py-2 rounded-r hover:bg-primary-dark transition-colors"/>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="flex">
+                                    <h:selectOneMenu value="#{bookBean.filterAuthorId}" 
+                                                    styleClass="w-full rounded-l border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 px-3 py-2 border">
+                                        <f:selectItem itemLabel="All Authors" itemValue=""/>
+                                        <f:selectItems value="#{authorBean.authors}" var="author" 
+                                                      itemLabel="#{author.name}" itemValue="#{author.id}"/>
+                                    </h:selectOneMenu>
+                                    <h:commandButton value="Filter" action="#{bookBean.filter}" 
+                                                   styleClass="bg-gray-200 text-gray-800 px-4 py-2 rounded-r hover:bg-gray-300 transition-colors"/>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </h:form>
                 
                 <h:form>
-                    <div class="book-grid">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                         <ui:repeat value="#{bookBean.books}" var="book">
-                            <div class="book-card">
-                                <div class="book-thumb">
-                                    <h:graphicImage name="images/book-placeholder.jpg" alt="#{book.title}"/>
+                            <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                                <div class="h-40 overflow-hidden">
+                                    <h:graphicImage name="images/book-placeholder.jpg" alt="#{book.title}" 
+                                                   styleClass="w-full h-full object-cover hover:scale-105 transition-transform"/>
                                 </div>
-                                <div class="book-info">
-                                    <h3>
-                                        <h:link outcome="/books/details" value="#{book.title}">
+                                <div class="p-4">
+                                    <h3 class="text-lg font-semibold h-14 overflow-hidden line-clamp-2">
+                                        <h:link outcome="/books/details" value="#{book.title}" 
+                                               styleClass="text-gray-800 hover:text-primary transition-colors">
                                             <f:param name="id" value="#{book.id}"/>
                                         </h:link>
                                     </h3>
-                                    <p class="author">by 
-                                        <h:link outcome="/authors/details" value="#{bookBean.getAuthorName(book.authorId)}">
+                                    <p class="text-gray-600 text-sm mb-1">by 
+                                        <h:link outcome="/authors/details" value="#{bookBean.getAuthorName(book.authorId)}" 
+                                               styleClass="hover:text-primary transition-colors">
                                             <f:param name="id" value="#{book.authorId}"/>
                                         </h:link>
                                     </p>
-                                    <p class="year">Published: #{book.publicationYear}</p>
-                                    <p class="price">$#{book.price}</p>
-                                    <p class="stock">#{book.stock} in stock</p>
+                                    <p class="text-gray-500 text-sm mb-1">Published: #{book.publicationYear}</p>
+                                    <p class="text-primary font-bold text-lg mb-2">$#{book.price}</p>
+                                    <p class="text-sm mb-3">
+                                        <span class="#{book.stock > 0 ? 'text-green-600' : 'text-red-600'}">
+                                            #{book.stock > 0 ? book.stock.toString().concat(' in stock') : 'Out of Stock'}
+                                        </span>
+                                    </p>
                                     
-                                    <div class="action-buttons">
+                                    <div class="flex items-center gap-2 flex-wrap">
                                         <h:commandButton value="Add to Cart" 
-                                                        action="#{cartBean.addToCart(book.id)}"
-                                                        styleClass="btn btn-primary"
-                                                        rendered="#{book.stock > 0}"/>
-                                        <h:outputText value="Out of Stock" styleClass="out-of-stock"
-                                                    rendered="#{book.stock == 0}"/>
+                                                       action="#{cartBean.addToCart(book.id)}"
+                                                       styleClass="flex-grow bg-primary text-white py-2 px-3 rounded text-center hover:bg-primary-dark transition-colors"
+                                                       rendered="#{book.stock > 0}"/>
+                                        <h:outputText value="Out of Stock" 
+                                                      styleClass="flex-grow block bg-gray-200 text-gray-600 py-2 px-3 rounded text-center"
+                                                      rendered="#{book.stock == 0}"/>
                                         
-                                        <h:panelGroup rendered="#{customerBean.loggedIn and customerBean.loggedInCustomer.name eq 'Admin'}">
-                                            <h:link outcome="/books/edit" styleClass="btn btn-secondary">
+                                        <h:panelGroup rendered="#{customerBean.loggedIn and customerBean.loggedInCustomer.name eq 'Admin'}" layout="block"
+                                                      styleClass="flex gap-2 mt-2 w-full">
+                                            <h:link outcome="/books/edit" styleClass="flex-grow bg-gray-200 text-gray-700 py-2 px-3 rounded text-center hover:bg-gray-300 transition-colors">
                                                 <f:param name="id" value="#{book.id}"/>
                                                 Edit
                                             </h:link>
                                             <h:commandButton value="Delete" 
-                                                            action="#{bookBean.deleteBook(book.id)}"
-                                                            styleClass="btn btn-danger"
-                                                            onclick="return confirm('Are you sure you want to delete this book?')"/>
+                                                           action="#{bookBean.deleteBook(book.id)}"
+                                                           styleClass="flex-grow bg-red-600 text-white py-2 px-3 rounded text-center hover:bg-red-700 transition-colors"
+                                                           onclick="return confirm('Are you sure you want to delete this book?')"/>
                                         </h:panelGroup>
                                     </div>
                                 </div>
                             </div>
                         </ui:repeat>
                     </div>
+                    
+                    <h:panelGroup layout="block" styleClass="text-center mt-8 text-gray-500" rendered="#{empty bookBean.books}">
+                        <h:outputText escape="false" value="&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; class=&quot;h-12 w-12 mx-auto mb-4 text-gray-400&quot; fill=&quot;none&quot; viewBox=&quot;0 0 24 24&quot; stroke=&quot;currentColor&quot;&gt;
+                            &lt;path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; stroke-width=&quot;2&quot; d=&quot;M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253&quot; /&gt;
+                        &lt;/svg&gt;" />
+                        <p class="text-lg font-medium">No books found</p>
+                        <p class="mt-1">Try adjusting your search or filter to find what you're looking for.</p>
+                    </h:panelGroup>
                 </h:form>
             </div>
         </ui:define>

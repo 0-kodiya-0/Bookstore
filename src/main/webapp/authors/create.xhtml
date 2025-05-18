@@ -1,38 +1,40 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://xmlns.jcp.org/jsf/html"
-      xmlns:f="http://xmlns.jcp.org/jsf/core"
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
     <ui:composition template="/templates/layout.xhtml">
         <ui:define name="title">Bookstore - Add New Author</ui:define>
         
         <ui:define name="content">
-            <div class="container">
-                <div class="page-header">
-                    <h1>Add New Author</h1>
-                </div>
+            <div class="max-w-3xl mx-auto px-4 sm:px-6 py-8">
+                <h1 class="text-2xl md:text-3xl font-bold mb-8">Add New Author</h1>
                 
-                <div class="form-container">
-                    <h:form>
-                        <div class="form-group">
-                            <h:outputLabel for="name" value="Name:"/>
-                            <h:inputText id="name" value="#{authorBean.author.name}" required="true" 
-                                         requiredMessage="Name is required" styleClass="form-control"/>
-                            <h:message for="name" styleClass="error-message"/>
-                        </div>
-                        
-                        <div class="form-group">
-                            <h:outputLabel for="biography" value="Biography:"/>
-                            <h:inputTextarea id="biography" value="#{authorBean.author.biography}" rows="5" 
-                                            styleClass="form-control"/>
-                            <h:message for="biography" styleClass="error-message"/>
-                        </div>
-                        
-                        <div class="form-actions">
-                            <h:commandButton value="Save" action="#{authorBean.createAuthor()}" styleClass="btn btn-primary"/>
-                            <h:link outcome="/authors/list" value="Cancel" styleClass="btn btn-secondary"/>
-                        </div>
-                    </h:form>
+                <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                    <div class="p-6">
+                        <h:form styleClass="space-y-6">
+                            <div>
+                                <h:outputLabel for="name" value="Name:" styleClass="block text-sm font-medium text-gray-700 mb-1"/>
+                                <h:inputText id="name" value="#{authorBean.author.name}" required="true" 
+                                           requiredMessage="Name is required" 
+                                           styleClass="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary"/>
+                                <h:message for="name" styleClass="mt-1 text-sm text-red-600"/>
+                            </div>
+                            
+                            <div>
+                                <h:outputLabel for="biography" value="Biography:" styleClass="block text-sm font-medium text-gray-700 mb-1"/>
+                                <h:inputTextarea id="biography" value="#{authorBean.author.biography}" rows="5" 
+                                                styleClass="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary"/>
+                                <h:message for="biography" styleClass="mt-1 text-sm text-red-600"/>
+                            </div>
+                            
+                            <div class="flex items-center justify-between pt-4">
+                                <h:commandButton value="Save" action="#{authorBean.createAuthor()}" 
+                                               styleClass="inline-flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors"/>
+                                <h:link outcome="/authors/list" value="Cancel" 
+                                       styleClass="text-gray-500 hover:text-gray-700 transition-colors"/>
+                            </div>
+                        </h:form>
+                    </div>
                 </div>
             </div>
         </ui:define>

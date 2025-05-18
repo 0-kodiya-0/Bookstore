@@ -7,68 +7,80 @@
         <ui:define name="title">Bookstore - Home</ui:define>
         
         <ui:define name="content">
-            <div class="hero-section">
-                <div class="hero-content">
-                    <h1>Welcome to Our Bookstore</h1>
-                    <p>Discover your next favorite book</p>
-                    <h:link outcome="/books/list" value="Browse Books" styleClass="btn btn-primary btn-lg"/>
+            <div class="relative bg-gradient-to-r from-blue-800 to-primary py-16 md:py-24 px-4 sm:px-6">
+                <div class="max-w-7xl mx-auto text-center text-white">
+                    <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">Welcome to Our Bookstore</h1>
+                    <p class="text-xl md:text-2xl mb-8 opacity-90">Discover your next favorite book</p>
+                    <h:link outcome="/books/list" value="Browse Books" 
+                            styleClass="inline-block bg-white text-primary hover:bg-gray-100 font-medium py-3 px-6 rounded-md shadow transition-colors"/>
                 </div>
+                <div class="absolute inset-0 bg-pattern opacity-10"></div>
             </div>
             
-            <div class="container">
-                <h2 class="section-title">Featured Books</h2>
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 py-12">
+                <h2 class="text-2xl md:text-3xl font-bold text-center mb-12 relative after:content-[''] after:block after:w-16 after:h-1 after:bg-primary after:mx-auto after:mt-4">Featured Books</h2>
                 
                 <h:form>
-                    <div class="book-grid">
-                        <ui:repeat value="#{bookBean.books}" var="book" size="6">
-                            <div class="book-card">
-                                <div class="book-thumb">
-                                    <h:graphicImage name="images/book-placeholder.jpg" alt="#{book.title}"/>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
+                        <!-- Removed the size attribute to avoid iteration beyond available items -->
+                        <ui:repeat value="#{bookBean.books}" var="book">
+                            <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                                <div class="h-48 overflow-hidden">
+                                    <h:graphicImage name="images/book-placeholder.jpg" alt="#{book.title}" 
+                                                   styleClass="w-full h-full object-cover hover:scale-105 transition-transform"/>
                                 </div>
-                                <div class="book-info">
-                                    <h3>
-                                        <h:link outcome="/books/details" value="#{book.title}">
+                                <div class="p-4">
+                                    <h3 class="text-lg font-semibold h-14 overflow-hidden line-clamp-2">
+                                        <h:link outcome="/books/details" value="#{book.title}" 
+                                               styleClass="text-gray-800 hover:text-primary transition-colors">
                                             <f:param name="id" value="#{book.id}"/>
                                         </h:link>
                                     </h3>
-                                    <p class="author">by 
-                                        <h:link outcome="/authors/details" value="#{bookBean.getAuthorName(book.authorId)}">
+                                    <p class="text-gray-600 text-sm mb-2">by 
+                                        <h:link outcome="/authors/details" value="#{bookBean.getAuthorName(book.authorId)}" 
+                                               styleClass="hover:text-primary transition-colors">
                                             <f:param name="id" value="#{book.authorId}"/>
                                         </h:link>
                                     </p>
-                                    <p class="price">$#{book.price}</p>
+                                    <p class="text-primary font-bold mb-3">$#{book.price}</p>
                                     <h:commandButton value="Add to Cart" 
-                                                     action="#{cartBean.addToCart(book.id)}"
-                                                     styleClass="btn btn-primary"
-                                                     rendered="#{book.stock > 0}"/>
-                                    <h:outputText value="Out of Stock" styleClass="out-of-stock"
-                                                  rendered="#{book.stock == 0}"/>
+                                                   action="#{cartBean.addToCart(book.id)}"
+                                                   styleClass="w-full bg-primary text-white py-2 px-4 rounded text-center hover:bg-primary-dark transition-colors"
+                                                   rendered="#{book.stock > 0}"/>
+                                    <h:outputText value="Out of Stock" 
+                                                 styleClass="w-full block bg-gray-200 text-gray-600 py-2 px-4 rounded text-center"
+                                                 rendered="#{book.stock == 0}"/>
                                 </div>
                             </div>
                         </ui:repeat>
                     </div>
                 </h:form>
                 
-                <div class="view-all-link">
-                    <h:link outcome="/books/list" value="View All Books →"/>
+                <div class="text-center mt-8">
+                    <h:link outcome="/books/list" value="View All Books →" 
+                           styleClass="text-primary hover:text-primary-dark font-medium text-lg inline-flex items-center transition-colors"/>
                 </div>
                 
-                <h2 class="section-title">Featured Authors</h2>
+                <h2 class="text-2xl md:text-3xl font-bold text-center mb-12 mt-16 relative after:content-[''] after:block after:w-16 after:h-1 after:bg-primary after:mx-auto after:mt-4">Featured Authors</h2>
                 
-                <div class="author-grid">
-                    <ui:repeat value="#{authorBean.authors}" var="author" size="4">
-                        <div class="author-card">
-                            <div class="author-thumb">
-                                <h:graphicImage name="images/author-placeholder.jpg" alt="#{author.name}"/>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <!-- Removed the size attribute to avoid iteration beyond available items -->
+                    <ui:repeat value="#{authorBean.authors}" var="author">
+                        <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                            <div class="h-48 overflow-hidden">
+                                <h:graphicImage name="images/author-placeholder.jpg" alt="#{author.name}" 
+                                               styleClass="w-full h-full object-cover hover:scale-105 transition-transform"/>
                             </div>
-                            <div class="author-info">
-                                <h3>
-                                    <h:link outcome="/authors/details" value="#{author.name}">
+                            <div class="p-4">
+                                <h3 class="text-lg font-semibold mb-2">
+                                    <h:link outcome="/authors/details" value="#{author.name}" 
+                                           styleClass="text-gray-800 hover:text-primary transition-colors">
                                         <f:param name="id" value="#{author.id}"/>
                                     </h:link>
                                 </h3>
-                                <p class="bio">#{author.biography}</p>
-                                <h:link outcome="/authors/details" value="View Books" styleClass="btn btn-outline">
+                                <p class="text-gray-600 text-sm line-clamp-3 h-14 overflow-hidden mb-4">#{author.biography}</p>
+                                <h:link outcome="/authors/details" value="View Books" 
+                                       styleClass="inline-block text-primary border border-primary hover:bg-primary hover:text-white py-2 px-4 rounded transition-colors">
                                     <f:param name="id" value="#{author.id}"/>
                                 </h:link>
                             </div>
@@ -76,8 +88,9 @@
                     </ui:repeat>
                 </div>
                 
-                <div class="view-all-link">
-                    <h:link outcome="/authors/list" value="View All Authors →"/>
+                <div class="text-center mt-8">
+                    <h:link outcome="/authors/list" value="View All Authors →" 
+                           styleClass="text-primary hover:text-primary-dark font-medium text-lg inline-flex items-center transition-colors"/>
                 </div>
             </div>
         </ui:define>

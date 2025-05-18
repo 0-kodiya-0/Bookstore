@@ -4,6 +4,8 @@ import com.example.bookstore.models.Cart;
 import com.example.bookstore.models.CartItem;
 import com.example.bookstore.models.Book;
 import com.example.bookstore.models.Customer;
+import com.example.bookstore.resources.AuthResource;
+import com.example.bookstore.utils.JwtUtil;
 import com.example.bookstore.utils.RestClient;
 
 import javax.annotation.PostConstruct;
@@ -14,39 +16,103 @@ import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpSession;
 import java.io.Serializable;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.faces.bean.ViewScoped;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 @ManagedBean
-@SessionScoped
+@ViewScoped
 public class CartBean implements Serializable {
     private static final long serialVersionUID = 1L;
+    
+    private static final Logger LOGGER = Logger.getLogger(AuthResource.class.getName());
     
     private Cart cart;
     private CartItem cartItem = new CartItem();
     private List<Book> books;
+    private Customer loggedInCustomer;
+    private String jwtToken;
     private RestClient restClient = new RestClient();
     
     @PostConstruct
     public void init() {
         // Initialize JWT token from session if available
-        HttpSession session = (HttpSession) FacesContext.getCurrentInstance().getExternalContext().getSession(false);
-        if (session != null && session.getAttribute("jwtToken") != null) {
-            String jwtToken = (String) session.getAttribute("jwtToken");
-            restClient.setJwtToken(jwtToken);
-        }
+        checkExistingAuthentication();
+        
+        LOGGER.log(Level.INFO, loggedInCustomer.toString());
         
         loadBooks();
         loadCart();
     }
     
+    private void checkExistingAuthentication() {
+        // Check session first
+        HttpSession session = (HttpSession) FacesContext.getCurrentInstance()
+                .getExternalContext().getSession(false);
+
+        if (session != null && session.getAttribute("jwtToken") != null) {
+            jwtToken = (String) session.getAttribute("jwtToken");
+            loggedInCustomer = (Customer) session.getAttribute("loggedInCustomer");
+            restClient.setJwtToken(jwtToken);
+            return;
+        }
+
+        // Check for JWT cookie
+        HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance()
+                .getExternalContext().getRequest();
+        Cookie[] cookies = request.getCookies();
+
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("jwt_token".equals(cookie.getName())) {
+                    String token = cookie.getValue();
+
+                    try {
+                        Long customerId = JwtUtil.getCustomerIdFromToken(token);
+                        if (customerId != null) {
+                            // Valid token, restore user session
+                            jwtToken = token;
+                            restClient.setJwtToken(jwtToken);
+
+                            // Get customer info using the token
+                            loggedInCustomer = restClient.get("customers/" + customerId, Customer.class);
+
+                            // Store in session
+                            if (session == null) {
+                                session = (HttpSession) FacesContext.getCurrentInstance()
+                                        .getExternalContext().getSession(true);
+                            }
+                            session.setAttribute("jwtToken", jwtToken);
+                            session.setAttribute("loggedInCustomer", loggedInCustomer);
+                        }
+                    } catch (Exception e) {
+                        // Token validation failed, clear the cookie
+                        HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance()
+                                .getExternalContext().getResponse();
+                        Cookie tokenCookie = new Cookie("jwt_token", "");
+                        tokenCookie.setMaxAge(0); // Expire immediately
+                        tokenCookie.setPath("/");
+                        response.addCookie(tokenCookie);
+                    }
+                    break;
+                }
+            }
+        }
+    }
+    
     public void loadBooks() {
         books = restClient.getAll("books", Book.class);
+        LOGGER.log(Level.INFO, books.toString());
     }
     
     public void loadCart() {
-        Customer loggedInCustomer = getLoggedInCustomer();
         if (loggedInCustomer != null) {
             try {
                 cart = restClient.get("customers/" + loggedInCustomer.getId() + "/cart", Cart.class);
+                LOGGER.log(Level.INFO, cart.toString());
             } catch (Exception e) {
                 // If cart doesn't exist or error occurs, create empty cart object
                 cart = new Cart(loggedInCustomer.getId());
@@ -58,7 +124,7 @@ public class CartBean implements Serializable {
     }
     
     public void addToCart(Long bookId) {
-        Customer loggedInCustomer = getLoggedInCustomer();
+        
         if (loggedInCustomer == null) {
             FacesContext.getCurrentInstance().addMessage(null, 
                 new FacesMessage(FacesMessage.SEVERITY_WARN, "Warning", "Please log in to add items to cart"));
@@ -80,7 +146,7 @@ public class CartBean implements Serializable {
     }
     
     public void updateCartItem(Long bookId, Integer quantity) {
-        Customer loggedInCustomer = getLoggedInCustomer();
+        
         if (loggedInCustomer == null) {
             return;
         }
@@ -101,7 +167,7 @@ public class CartBean implements Serializable {
     }
     
     public void removeFromCart(Long bookId) {
-        Customer loggedInCustomer = getLoggedInCustomer();
+        
         if (loggedInCustomer == null) {
             return;
         }
@@ -119,7 +185,7 @@ public class CartBean implements Serializable {
     }
     
     public String checkout() {
-        Customer loggedInCustomer = getLoggedInCustomer();
+        
         if (loggedInCustomer == null) {
             return "/customers/login?faces-redirect=true";
         }
@@ -168,11 +234,6 @@ public class CartBean implements Serializable {
         }
         
         return total;
-    }
-    
-    private Customer getLoggedInCustomer() {
-        HttpSession session = (HttpSession) FacesContext.getCurrentInstance().getExternalContext().getSession(false);
-        return (session != null) ? (Customer) session.getAttribute("loggedInCustomer") : null;
     }
     
     // Getters and setters

@@ -70,4 +70,9 @@ public class Cart implements Serializable {
     public void removeItem(Long bookId) {
         items.removeIf(item -> item.getBookId().equals(bookId));
     }
+
+    @Override
+    public String toString() {
+        return "Cart{" + "customerId=" + customerId + ", items=" + items.toString() + '}';
+    }
 }

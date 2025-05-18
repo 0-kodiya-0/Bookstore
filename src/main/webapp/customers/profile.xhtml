@@ -7,68 +7,86 @@
         <ui:define name="title">Bookstore - My Profile</ui:define>
         
         <ui:define name="content">
-            <div class="container">
-                <div class="page-header">
-                    <h1>My Profile</h1>
-                </div>
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+                <h1 class="text-2xl md:text-3xl font-bold mb-8">My Profile</h1>
                 
-                <div class="profile-container">
-                    <div class="profile-info">
-                        <div class="info-group">
-                            <span class="info-label">Name:</span>
-                            <span class="info-value">#{customerBean.loggedInCustomer.name}</span>
-                        </div>
-                        
-                        <div class="info-group">
-                            <span class="info-label">Email:</span>
-                            <span class="info-value">#{customerBean.loggedInCustomer.email}</span>
-                        </div>
-                        
-                        <div class="profile-actions">
-                            <h:link outcome="/customers/edit" value="Edit Profile" styleClass="btn btn-primary"/>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Profile Information -->
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                        <div class="p-6">
+                            <h2 class="text-xl font-semibold mb-6 pb-2 border-b border-gray-200">Personal Information</h2>
+                            
+                            <div class="space-y-4">
+                                <div>
+                                    <h3 class="text-sm font-medium text-gray-500">Name</h3>
+                                    <p class="text-gray-800 font-medium">#{customerBean.loggedInCustomer.name}</p>
+                                </div>
+                                
+                                <div>
+                                    <h3 class="text-sm font-medium text-gray-500">Email</h3>
+                                    <p class="text-gray-800 font-medium">#{customerBean.loggedInCustomer.email}</p>
+                                </div>
+                                
+                                <div class="pt-4">
+                                    <h:link outcome="/customers/edit" value="Edit Profile" 
+                                           styleClass="inline-flex items-center bg-primary text-white px-4 py-2 rounded-md hover:bg-primary-dark transition-colors">
+                                        <h:outputText escape="false" value="&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; class=&quot;h-4 w-4 mr-2&quot; fill=&quot;none&quot; viewBox=&quot;0 0 24 24&quot; stroke=&quot;currentColor&quot;&gt;
+                                            &lt;path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; stroke-width=&quot;2&quot; d=&quot;M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z&quot; /&gt;
+                                        &lt;/svg&gt;" />
+                                        Edit Profile
+                                    </h:link>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     
-                    <div class="profile-recent-orders">
-                        <h3>Recent Orders</h3>
-                        
-                        <h:form rendered="#{not empty orderBean.orders}">
-                            <div class="recent-orders-list">
-                                <ui:repeat value="#{orderBean.orders}" var="order" size="5">
-                                    <div class="recent-order-item">
-                                        <div class="order-id">
-                                            Order ##{order.id}
-                                        </div>
-                                        
-                                        <div class="order-date">
-                                            <h:outputText value="#{order.orderDate}">
-                                                <f:convertDateTime pattern="MM/dd/yyyy"/>
-                                            </h:outputText>
-                                        </div>
-                                        
-                                        <div class="order-total">
-                                            $#{order.totalAmount}
-                                        </div>
-                                        
-                                        <div class="order-actions">
-                                            <h:link outcome="/orders/details" styleClass="btn btn-sm btn-secondary">
-                                                <f:param name="id" value="#{order.id}"/>
-                                                View
-                                            </h:link>
-                                        </div>
-                                    </div>
-                                </ui:repeat>
-                            </div>
+                    <!-- Recent Orders -->
+                    <div class="lg:col-span-2 bg-white rounded-lg shadow-md overflow-hidden">
+                        <div class="p-6">
+                            <h2 class="text-xl font-semibold mb-6 pb-2 border-b border-gray-200">Recent Orders</h2>
                             
-                            <div class="view-all-link">
-                                <h:link outcome="/orders/list" value="View All Orders →"/>
-                            </div>
-                        </h:form>
-                        
-                        <h:panelGroup rendered="#{empty orderBean.orders}">
-                            <p>You haven't placed any orders yet.</p>
-                            <h:link outcome="/books/list" value="Start Shopping" styleClass="btn btn-primary"/>
-                        </h:panelGroup>
+                            <h:form rendered="#{not empty orderBean.orders}">
+                                <div class="space-y-6">
+                                    <ui:repeat value="#{orderBean.orders}" var="order" size="5">
+                                        <div class="bg-gray-50 rounded-lg p-4 hover:shadow-sm transition-shadow">
+                                            <div class="flex flex-col sm:flex-row justify-between">
+                                                <div>
+                                                    <h3 class="font-medium text-gray-800">Order ##{order.id}</h3>
+                                                    <p class="text-sm text-gray-500">
+                                                        <h:outputText value="#{order.orderDate}">
+                                                            <f:convertDateTime pattern="MMM dd, yyyy HH:mm"/>
+                                                        </h:outputText>
+                                                    </p>
+                                                </div>
+                                                
+                                                <div class="mt-2 sm:mt-0 flex flex-col sm:items-end">
+                                                    <span class="font-bold text-primary">$#{order.totalAmount}</span>
+                                                    <h:link outcome="/orders/details" styleClass="text-sm text-primary hover:text-primary-dark mt-1">
+                                                        <f:param name="id" value="#{order.id}"/>
+                                                        View Details
+                                                    </h:link>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </ui:repeat>
+                                </div>
+                                
+                                <div class="mt-6 text-center">
+                                    <h:link outcome="/orders/list" value="View All Orders →" 
+                                           styleClass="text-primary hover:text-primary-dark font-medium"/>
+                                </div>
+                            </h:form>
+                            
+                            <h:panelGroup rendered="#{empty orderBean.orders}" layout="block" styleClass="text-center py-8">
+                                <h:outputText escape="false" value="&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; class=&quot;h-12 w-12 mx-auto mb-4 text-gray-400&quot; fill=&quot;none&quot; viewBox=&quot;0 0 24 24&quot; stroke=&quot;currentColor&quot;&gt;
+                                    &lt;path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; stroke-width=&quot;2&quot; d=&quot;M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z&quot; /&gt;
+                                &lt;/svg&gt;" />
+                                <p class="text-lg font-medium text-gray-700">You haven't placed any orders yet.</p>
+                                <p class="text-gray-500 mb-6">Start shopping to place your first order!</p>
+                                <h:link outcome="/books/list" value="Start Shopping" 
+                                       styleClass="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors"/>
+                            </h:panelGroup>
+                        </div>
                     </div>
                 </div>
             </div>

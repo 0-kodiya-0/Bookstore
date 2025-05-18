@@ -102,7 +102,8 @@ public class AuthResource {
         try {
             // Add customer via repository
             Customer createdCustomer = customerRepository.addCustomer(customer);
-            createdCustomer.setPassword(null);
+            Customer responseCustomer = new Customer(createdCustomer);
+            responseCustomer.setPassword(null);
 
             // Generate token for auto-login
             String token = JwtUtil.generateToken(
@@ -113,7 +114,7 @@ public class AuthResource {
             // Create response with token and customer data
             LoginResponse response = new LoginResponse();
             response.setToken(token);
-            response.setCustomer(createdCustomer);
+            response.setCustomer(responseCustomer);
 
             LOGGER.log(Level.INFO, "REST - Registration successful for email: {0}", customer.getEmail());
             return Response.status(Response.Status.CREATED).entity(response).build();

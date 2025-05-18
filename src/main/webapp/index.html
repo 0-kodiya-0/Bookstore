@@ -3,8 +3,18 @@
 <head>
     <title>Bookstore</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <!-- Add Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <p>Redirecting to <a href="index.xhtml">Bookstore Home</a>...</p>
+<body class="bg-gray-50 flex items-center justify-center min-h-screen">
+    <div class="text-center">
+        <h1 class="text-xl font-medium text-gray-700 mb-2">Redirecting...</h1>
+        <p class="text-gray-500">If you are not redirected automatically, please click 
+            <a href="index.xhtml" class="text-primary hover:text-primary-dark transition-colors">here</a>.
+        </p>
+        <div class="mt-4">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+        </div>
+    </div>
 </body>
 </html>

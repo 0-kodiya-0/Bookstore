@@ -24,8 +24,7 @@ public class JwtAuthenticationFilter implements ContainerRequestFilter {
     private static final List<String> EXEMPT_PATHS = Arrays.asList(
             "auth",
             "books",
-            "authors",
-            "customers" // Allow customer registration
+            "authors"
     );
     
     @Override

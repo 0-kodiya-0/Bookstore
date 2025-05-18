@@ -7,61 +7,89 @@
         <ui:define name="title">Bookstore - My Orders</ui:define>
         
         <ui:define name="content">
-            <div class="container">
-                <div class="page-header">
-                    <h1>My Orders</h1>
-                </div>
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+                <h1 class="text-2xl md:text-3xl font-bold mb-8">My Orders</h1>
                 
                 <h:form rendered="#{not empty orderBean.orders}">
-                    <div class="orders-list">
-                        <div class="order-header">
-                            <div class="order-id">Order #</div>
-                            <div class="order-date">Date</div>
-                            <div class="order-items">Items</div>
-                            <div class="order-total">Total</div>
-                            <div class="order-actions">Actions</div>
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                        <!-- Desktop View -->
+                        <div class="hidden md:block">
+                            <div class="grid grid-cols-12 gap-4 bg-gray-50 p-4 text-sm font-medium text-gray-500 border-b border-gray-200">
+                                <div class="col-span-2">Order #</div>
+                                <div class="col-span-3">Date</div>
+                                <div class="col-span-2 text-center">Items</div>
+                                <div class="col-span-3 text-center">Total</div>
+                                <div class="col-span-2 text-right">Actions</div>
+                            </div>
+                            
+                            <ui:repeat value="#{orderBean.orders}" var="order">
+                                <div class="grid grid-cols-12 gap-4 p-4 border-b border-gray-100 items-center hover:bg-gray-50 transition-colors">
+                                    <div class="col-span-2 font-medium">#{order.id}</div>
+                                    
+                                    <div class="col-span-3">
+                                        <h:outputText value="#{order.orderDate}">
+                                            <f:convertDateTime pattern="MMM dd, yyyy HH:mm"/>
+                                        </h:outputText>
+                                    </div>
+                                    
+                                    <div class="col-span-2 text-center">
+                                        #{order.items.size()} item(s)
+                                    </div>
+                                    
+                                    <div class="col-span-3 text-center font-medium text-primary">
+                                        $#{order.totalAmount}
+                                    </div>
+                                    
+                                    <div class="col-span-2 text-right">
+                                        <h:link outcome="/orders/details" styleClass="inline-flex items-center bg-primary text-white px-3 py-1 rounded-md text-sm hover:bg-primary-dark transition-colors">
+                                            <f:param name="id" value="#{order.id}"/>
+                                            View Details
+                                        </h:link>
+                                    </div>
+                                </div>
+                            </ui:repeat>
                         </div>
                         
-                        <ui:repeat value="#{orderBean.orders}" var="order">
-                            <div class="order-item">
-                                <div class="order-id">
-                                    #{order.id}
+                        <!-- Mobile View -->
+                        <div class="md:hidden divide-y divide-gray-200">
+                            <ui:repeat value="#{orderBean.orders}" var="order">
+                                <div class="p-4 hover:bg-gray-50 transition-colors">
+                                    <div class="flex justify-between items-start mb-3">
+                                        <div>
+                                            <h3 class="font-medium text-gray-800">Order ##{order.id}</h3>
+                                            <p class="text-sm text-gray-500">
+                                                <h:outputText value="#{order.orderDate}">
+                                                    <f:convertDateTime pattern="MMM dd, yyyy HH:mm"/>
+                                                </h:outputText>
+                                            </p>
+                                        </div>
+                                        <span class="font-medium text-primary">$#{order.totalAmount}</span>
+                                    </div>
+                                    
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-sm text-gray-500">#{order.items.size()} item(s)</span>
+                                        <h:link outcome="/orders/details" styleClass="inline-flex items-center bg-primary text-white px-3 py-1 rounded-md text-sm hover:bg-primary-dark transition-colors">
+                                            <f:param name="id" value="#{order.id}"/>
+                                            View Details
+                                        </h:link>
+                                    </div>
                                 </div>
-                                
-                                <div class="order-date">
-                                    <h:outputText value="#{order.orderDate}">
-                                        <f:convertDateTime pattern="MM/dd/yyyy HH:mm"/>
-                                    </h:outputText>
-                                </div>
-                                
-                                <div class="order-items">
-                                    #{order.items.size()} item(s)
-                                </div>
-                                
-                                <div class="order-total">
-                                    $#{order.totalAmount}
-                                </div>
-                                
-                                <div class="order-actions">
-                                    <h:link outcome="/orders/details" styleClass="btn btn-primary btn-sm">
-                                        <f:param name="id" value="#{order.id}"/>
-                                        View Details
-                                    </h:link>
-                                </div>
-                            </div>
-                        </ui:repeat>
+                            </ui:repeat>
+                        </div>
                     </div>
                 </h:form>
                 
-                <h:panelGroup rendered="#{empty orderBean.orders}">
-                    <div class="empty-orders">
-                        <div class="empty-orders-message">
-                            <i class="fa fa-file-text-o fa-4x"></i>
-                            <h2>No orders found</h2>
-                            <p>You haven't placed any orders yet.</p>
-                            <h:link outcome="/books/list" value="Start Shopping" styleClass="btn btn-primary btn-lg"/>
-                        </div>
+                <h:panelGroup rendered="#{empty orderBean.orders}" layout="block" 
+                             styleClass="text-center py-12 bg-white rounded-lg shadow-md">
+                    <div class="inline-block p-6 rounded-full bg-gray-100 mb-4">
+                        <h:outputText escape="false" value="&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; class=&quot;h-12 w-12 text-gray-400&quot; fill=&quot;none&quot; viewBox=&quot;0 0 24 24&quot; stroke=&quot;currentColor&quot;&gt;
+                            &lt;path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; stroke-width=&quot;2&quot; d=&quot;M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z&quot; /&gt;
+                        &lt;/svg&gt;" />
                     </div>
+                    <h2 class="text-xl font-bold text-gray-700 mb-2">No orders found</h2>
+                    <p class="text-gray-500 mb-6">You haven't placed any orders yet.</p>
+                    <h:link outcome="/books/list" value="Start Shopping" 
+                           styleClass="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors"/>
                 </h:panelGroup>
             </div>
         </ui:define>
