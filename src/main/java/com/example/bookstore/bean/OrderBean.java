@@ -11,6 +11,7 @@ import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpSession;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -25,6 +26,13 @@ public class OrderBean implements Serializable {
     
     @PostConstruct
     public void init() {
+        // Initialize JWT token from session if available
+        HttpSession session = (HttpSession) FacesContext.getCurrentInstance().getExternalContext().getSession(false);
+        if (session != null && session.getAttribute("jwtToken") != null) {
+            String jwtToken = (String) session.getAttribute("jwtToken");
+            restClient.setJwtToken(jwtToken);
+        }
+        
         Customer loggedInCustomer = getLoggedInCustomer();
         if (loggedInCustomer != null) {
             loadCustomerOrders(loggedInCustomer.getId());
@@ -42,6 +50,9 @@ public class OrderBean implements Serializable {
                         new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Invalid order ID"));
                 }
             }
+        } else {
+            // No logged in user, initialize empty lists
+            orders = new ArrayList<>();
         }
     }
     
@@ -51,6 +62,8 @@ public class OrderBean implements Serializable {
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage(null, 
                 new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", e.getMessage()));
+            // Initialize empty list on error
+            orders = new ArrayList<>();
         }
     }
     
@@ -66,6 +79,13 @@ public class OrderBean implements Serializable {
     private Customer getLoggedInCustomer() {
         HttpSession session = (HttpSession) FacesContext.getCurrentInstance().getExternalContext().getSession(false);
         return (session != null) ? (Customer) session.getAttribute("loggedInCustomer") : null;
+    }
+    
+    public String formatOrderDate(java.time.LocalDateTime date) {
+        if (date == null) {
+            return "";
+        }
+        return date.format(java.time.format.DateTimeFormatter.ofPattern("MMM dd, yyyy HH:mm"));
     }
     
     // Getters and setters

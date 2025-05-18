@@ -17,6 +17,8 @@ import java.net.URI;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import javax.ws.rs.QueryParam;
 
 @Path("/books")
 @Produces(MediaType.APPLICATION_JSON)
@@ -39,17 +41,17 @@ public class BookBaseResource {
             LOGGER.warning("REST - Create book failed: Title is empty");
             throw new InvalidInputException("Title cannot be empty");
         }
-        
+
         // Validate publication year
         if (book.getPublicationYear() == null) {
             throw new InvalidInputException("Publication year cannot be empty.");
         }
-        
+
         // Validate price
         if (book.getPrice() == null) {
             throw new InvalidInputException("Price cannot be empty.");
         }
-        
+
         // Validate stock
         if (book.getStock() == null) {
             throw new InvalidInputException("Stock cannot be empty.");
@@ -64,10 +66,24 @@ public class BookBaseResource {
     }
 
     @GET
-    public List<Book> getAllBooks() {
-        LOGGER.info("REST - Getting all books");
-        List<Book> books = bookRepository.getAllBooks();
-        LOGGER.log(Level.INFO, "REST - Retrieved {0} books", books.size());
+    public List<Book> getAllBooks(@QueryParam("query") String searchTerm) {
+        LOGGER.log(Level.INFO, "REST - Getting all books{0}", searchTerm != null ? " with search: " + searchTerm : "");
+
+        List<Book> books;
+        if (searchTerm != null && !searchTerm.trim().isEmpty()) {
+            // Perform search
+            books = bookRepository.getAllBooks().stream()
+                    .filter(book -> book.getTitle().toLowerCase().contains(searchTerm.toLowerCase()))
+                    .collect(Collectors.toList());
+
+            LOGGER.log(Level.INFO, "REST - Retrieved {0} books matching search: {1}",
+                    new Object[]{books.size(), searchTerm});
+        } else {
+            // Get all books
+            books = bookRepository.getAllBooks();
+            LOGGER.log(Level.INFO, "REST - Retrieved {0} books", books.size());
+        }
+
         return books;
     }
 }

@@ -130,7 +130,28 @@ public class AuthorBean implements Serializable {
     }
 
     public String search() {
-        // Implement search logic here
-        return null; // or the navigation outcome
+        if (searchTerm == null || searchTerm.trim().isEmpty()) {
+            // If search term is empty, just load all authors
+            loadAuthors();
+        } else {
+            try {
+                // Call the new search method in RestClient
+                authors = restClient.search("authors", searchTerm, Author.class);
+
+                if (authors.isEmpty()) {
+                    FacesContext.getCurrentInstance().addMessage(null,
+                            new FacesMessage(FacesMessage.SEVERITY_INFO, "Search Results",
+                                    "No authors found matching '" + searchTerm + "'"));
+                } else {
+                    FacesContext.getCurrentInstance().addMessage(null,
+                            new FacesMessage(FacesMessage.SEVERITY_INFO, "Search Results",
+                                    "Found " + authors.size() + " authors matching '" + searchTerm + "'"));
+                }
+            } catch (Exception e) {
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Search failed: " + e.getMessage()));
+            }
+        }
+        return null; // Stay on the same page
     }
 }

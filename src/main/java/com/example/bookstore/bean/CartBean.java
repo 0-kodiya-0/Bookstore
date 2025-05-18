@@ -27,7 +27,15 @@ public class CartBean implements Serializable {
     
     @PostConstruct
     public void init() {
+        // Initialize JWT token from session if available
+        HttpSession session = (HttpSession) FacesContext.getCurrentInstance().getExternalContext().getSession(false);
+        if (session != null && session.getAttribute("jwtToken") != null) {
+            String jwtToken = (String) session.getAttribute("jwtToken");
+            restClient.setJwtToken(jwtToken);
+        }
+        
         loadBooks();
+        loadCart();
     }
     
     public void loadBooks() {
@@ -37,7 +45,15 @@ public class CartBean implements Serializable {
     public void loadCart() {
         Customer loggedInCustomer = getLoggedInCustomer();
         if (loggedInCustomer != null) {
-            cart = restClient.get("customers/" + loggedInCustomer.getId() + "/cart", Cart.class);
+            try {
+                cart = restClient.get("customers/" + loggedInCustomer.getId() + "/cart", Cart.class);
+            } catch (Exception e) {
+                // If cart doesn't exist or error occurs, create empty cart object
+                cart = new Cart(loggedInCustomer.getId());
+            }
+        } else {
+            // No logged in user - empty cart
+            cart = new Cart();
         }
     }
     

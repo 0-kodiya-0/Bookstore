@@ -54,4 +54,9 @@ public class Customer implements Serializable {
     public void setPassword(String password) {
         this.password = password;
     }
+
+    @Override
+    public String toString() {
+        return "Customer{" + "id=" + id + ", name=" + name + ", email=" + email + ", password=" + password + '}';
+    }
 }

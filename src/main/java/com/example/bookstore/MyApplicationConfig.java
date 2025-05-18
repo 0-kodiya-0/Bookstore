@@ -14,9 +14,11 @@ import com.example.bookstore.exception.mapper.OrderNotFoundExceptionMapper;
 import com.example.bookstore.exception.mapper.OutOfStockExceptionMapper;
 import com.example.bookstore.exception.mapper.UnrecognizedFieldExceptionMapper;
 import com.example.bookstore.exception.mapper.WebApplicationExceptionMapper;
+import com.example.bookstore.filters.JwtAuthenticationFilter;
 import com.example.bookstore.filters.RequestLoggingFilter;
 import com.example.bookstore.filters.ResponseLoggingFilter;
 import com.example.bookstore.filters.TrailingSlashFilter;
+import com.example.bookstore.resources.AuthResource;
 import com.example.bookstore.resources.AuthorBaseResource;
 import com.example.bookstore.resources.AuthorIdResource;
 import com.example.bookstore.resources.BookBaseResource;
@@ -60,6 +62,10 @@ public class MyApplicationConfig extends ResourceConfig{
         register(JsonProcessingExceptionMapper.class);
         register(JsonProcessingExceptionMapper.class);
         register(WebApplicationExceptionMapper.class);
+        
+        // Authentication
+        register(AuthResource.class);
+        register(JwtAuthenticationFilter.class);
         
         register(JacksonFeature.class);
     }

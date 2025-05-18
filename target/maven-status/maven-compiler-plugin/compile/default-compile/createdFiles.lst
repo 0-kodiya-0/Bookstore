@@ -2,6 +2,7 @@ com\example\bookstore\exception\mapper\WebApplicationExceptionMapper.class
 com\example\bookstore\exception\mapper\GenericExceptionMapper.class
 com\example\bookstore\utils\AuthPhaseListener.class
 com\example\bookstore\exception\mapper\CartItemsNotFoundExceptionMapper.class
+com\example\bookstore\filters\JwtAuthenticationFilter.class
 com\example\bookstore\models\Author.class
 com\example\bookstore\resources\BookBaseResource.class
 com\example\bookstore\exception\mapper\AuthorNotFoundExceptionMapper.class
@@ -24,6 +25,7 @@ com\example\bookstore\repository\AuthorRepository.class
 com\example\bookstore\resources\CartResource.class
 com\example\bookstore\models\Book.class
 com\example\bookstore\exception\OrderNotFoundException.class
+com\example\bookstore\resources\AuthResource.class
 com\example\bookstore\exception\mapper\CustomerNotFoundExceptionMapper.class
 com\example\bookstore\models\Order.class
 com\example\bookstore\exception\mapper\BookNotFoundExceptionMapper.class
@@ -35,6 +37,7 @@ com\example\bookstore\resources\CustomerBaseResource.class
 com\example\bookstore\exception\mapper\JsonProcessingExceptionMapper.class
 com\example\bookstore\bean\CartBean.class
 com\example\bookstore\resources\BookIdResource.class
+com\example\bookstore\utils\JwtUtil.class
 com\example\bookstore\exception\mapper\OrderNotFoundExceptionMapper.class
 com\example\bookstore\models\UpdateResponse.class
 com\example\bookstore\resources\CustomerOrderResource.class
@@ -47,7 +50,9 @@ com\example\bookstore\exception\mapper\UnrecognizedFieldExceptionMapper.class
 com\example\bookstore\config\JacksonFeature.class
 com\example\bookstore\bean\CustomerBean.class
 com\example\bookstore\exception\CustomerNotFoundException.class
+com\example\bookstore\models\LoginRequest.class
 com\example\bookstore\exception\OutOfStockException.class
+com\example\bookstore\models\LoginResponse.class
 com\example\bookstore\bean\OrderBean.class
 com\example\bookstore\repository\CartRepository.class
 com\example\bookstore\resources\CustomerIdResource.class

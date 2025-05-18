@@ -151,15 +151,66 @@ public class BookBean implements Serializable {
         this.filterAuthorId = filterAuthorId;
     }
 
-// Add search and filter methods
     public String search() {
-        // Implement search logic here
-        return null; // or the navigation outcome
+        if (searchTerm == null || searchTerm.trim().isEmpty()) {
+            // If search term is empty, just load all books
+            loadBooks();
+        } else {
+            try {
+                // Call the search method in RestClient
+                books = restClient.search("books", searchTerm, Book.class);
+
+                if (books.isEmpty()) {
+                    FacesContext.getCurrentInstance().addMessage(null,
+                            new FacesMessage(FacesMessage.SEVERITY_INFO, "Search Results",
+                                    "No books found matching '" + searchTerm + "'"));
+                } else {
+                    FacesContext.getCurrentInstance().addMessage(null,
+                            new FacesMessage(FacesMessage.SEVERITY_INFO, "Search Results",
+                                    "Found " + books.size() + " books matching '" + searchTerm + "'"));
+                }
+            } catch (Exception e) {
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Search failed: " + e.getMessage()));
+            }
+        }
+        return null; // Stay on the same page
     }
 
+    // Update the filter() method:
     public String filter() {
-        // Implement filter logic here
-        return null; // or the navigation outcome
+        if (filterAuthorId == null) {
+            // If no author is selected, load all books
+            loadBooks();
+        } else {
+            try {
+                // Get books by specific author
+                books = restClient.getAll("authors/" + filterAuthorId + "/books", Book.class);
+
+                // Find author name for the message
+                String authorName = "Selected Author";
+                for (Author author : authors) {
+                    if (author.getId().equals(filterAuthorId)) {
+                        authorName = author.getName();
+                        break;
+                    }
+                }
+
+                if (books.isEmpty()) {
+                    FacesContext.getCurrentInstance().addMessage(null,
+                            new FacesMessage(FacesMessage.SEVERITY_INFO, "Filter Results",
+                                    "No books found for author '" + authorName + "'"));
+                } else {
+                    FacesContext.getCurrentInstance().addMessage(null,
+                            new FacesMessage(FacesMessage.SEVERITY_INFO, "Filter Results",
+                                    "Found " + books.size() + " books by '" + authorName + "'"));
+                }
+            } catch (Exception e) {
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Filter failed: " + e.getMessage()));
+            }
+        }
+        return null; // Stay on the same page
     }
 
 }

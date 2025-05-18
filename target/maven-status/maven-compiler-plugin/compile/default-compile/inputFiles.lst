@@ -14,7 +14,10 @@ D:\IIT\(2024) 5COSC022C.2 Client-Server Architectures\CW\BookstoreApi\src\main\j
 D:\IIT\(2024) 5COSC022C.2 Client-Server Architectures\CW\BookstoreApi\src\main\java\com\example\bookstore\exception\CartItemsNotFoundException.java
 D:\IIT\(2024) 5COSC022C.2 Client-Server Architectures\CW\BookstoreApi\src\main\java\com\example\bookstore\exception\mapper\CartItemsNotFoundExceptionMapper.java
 D:\IIT\(2024) 5COSC022C.2 Client-Server Architectures\CW\BookstoreApi\src\main\java\com\example\bookstore\exception\InvalidInputException.java
+D:\IIT\(2024) 5COSC022C.2 Client-Server Architectures\CW\BookstoreApi\src\main\java\com\example\bookstore\resources\AuthResource.java
 D:\IIT\(2024) 5COSC022C.2 Client-Server Architectures\CW\BookstoreApi\src\main\java\com\example\bookstore\resources\CustomerIdResource.java
+D:\IIT\(2024) 5COSC022C.2 Client-Server Architectures\CW\BookstoreApi\src\main\java\com\example\bookstore\models\LoginResponse.java
+D:\IIT\(2024) 5COSC022C.2 Client-Server Architectures\CW\BookstoreApi\src\main\java\com\example\bookstore\filters\JwtAuthenticationFilter.java
 D:\IIT\(2024) 5COSC022C.2 Client-Server Architectures\CW\BookstoreApi\src\main\java\com\example\bookstore\exception\CartItemExistsException.java
 D:\IIT\(2024) 5COSC022C.2 Client-Server Architectures\CW\BookstoreApi\src\main\java\com\example\bookstore\resources\AuthorBaseResource.java
 D:\IIT\(2024) 5COSC022C.2 Client-Server Architectures\CW\BookstoreApi\src\main\java\com\example\bookstore\resources\BookBaseResource.java
@@ -24,6 +27,7 @@ D:\IIT\(2024) 5COSC022C.2 Client-Server Architectures\CW\BookstoreApi\src\main\j
 D:\IIT\(2024) 5COSC022C.2 Client-Server Architectures\CW\BookstoreApi\src\main\java\com\example\bookstore\repository\BookRepository.java
 D:\IIT\(2024) 5COSC022C.2 Client-Server Architectures\CW\BookstoreApi\src\main\java\com\example\bookstore\exception\CartItemNotFoundException.java
 D:\IIT\(2024) 5COSC022C.2 Client-Server Architectures\CW\BookstoreApi\src\main\java\com\example\bookstore\exception\mapper\JsonProcessingExceptionMapper.java
+D:\IIT\(2024) 5COSC022C.2 Client-Server Architectures\CW\BookstoreApi\src\main\java\com\example\bookstore\utils\JwtUtil.java
 D:\IIT\(2024) 5COSC022C.2 Client-Server Architectures\CW\BookstoreApi\src\main\java\com\example\bookstore\filters\TrailingSlashFilter.java
 D:\IIT\(2024) 5COSC022C.2 Client-Server Architectures\CW\BookstoreApi\src\main\java\com\example\bookstore\exception\mapper\CustomerNotFoundExceptionMapper.java
 D:\IIT\(2024) 5COSC022C.2 Client-Server Architectures\CW\BookstoreApi\src\main\java\com\example\bookstore\repository\OrderRepository.java
@@ -33,6 +37,7 @@ D:\IIT\(2024) 5COSC022C.2 Client-Server Architectures\CW\BookstoreApi\src\main\j
 D:\IIT\(2024) 5COSC022C.2 Client-Server Architectures\CW\BookstoreApi\src\main\java\com\example\bookstore\exception\mapper\OrderNotFoundExceptionMapper.java
 D:\IIT\(2024) 5COSC022C.2 Client-Server Architectures\CW\BookstoreApi\src\main\java\com\example\bookstore\models\Customer.java
 D:\IIT\(2024) 5COSC022C.2 Client-Server Architectures\CW\BookstoreApi\src\main\java\com\example\bookstore\models\Book.java
+D:\IIT\(2024) 5COSC022C.2 Client-Server Architectures\CW\BookstoreApi\src\main\java\com\example\bookstore\models\LoginRequest.java
 D:\IIT\(2024) 5COSC022C.2 Client-Server Architectures\CW\BookstoreApi\src\main\java\com\example\bookstore\bean\OrderBean.java
 D:\IIT\(2024) 5COSC022C.2 Client-Server Architectures\CW\BookstoreApi\src\main\java\com\example\bookstore\bean\CustomerBean.java
 D:\IIT\(2024) 5COSC022C.2 Client-Server Architectures\CW\BookstoreApi\src\main\java\com\example\bookstore\models\OrderItem.java
