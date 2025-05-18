@@ -17,34 +17,12 @@
         <param-value>true</param-value>
     </context-param>
     
-    <context-param>
-        <param-name>javax.faces.INTERPRET_EMPTY_STRING_SUBMITTED_VALUES_AS_NULL</param-name>
-        <param-value>true</param-value>
-    </context-param>
-    
-    <context-param>
-        <param-name>javax.faces.FACELETS_REFRESH_PERIOD</param-name>
-        <param-value>0</param-value>
-    </context-param>
-    
-    <!-- Weld/CDI Configuration -->
-    <listener>
-        <listener-class>org.jboss.weld.environment.servlet.Listener</listener-class>
-    </listener>
-    
-    <resource-env-ref>
-        <resource-env-ref-name>BeanManager</resource-env-ref-name>
-        <resource-env-ref-type>javax.enterprise.inject.spi.BeanManager</resource-env-ref-type>
-    </resource-env-ref>
-    
-    <!-- Faces Servlet -->
     <servlet>
         <servlet-name>Faces Servlet</servlet-name>
         <servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
         <load-on-startup>1</load-on-startup>
     </servlet>
 
-    <!-- Faces Servlet Mapping -->
     <servlet-mapping>
         <servlet-name>Faces Servlet</servlet-name>
         <url-pattern>/faces/*</url-pattern>
@@ -54,13 +32,18 @@
         <servlet-name>Faces Servlet</servlet-name>
         <url-pattern>*.xhtml</url-pattern>
     </servlet-mapping>
-    
+
     <servlet-mapping>
         <servlet-name>Faces Servlet</servlet-name>
         <url-pattern>*.jsf</url-pattern>
     </servlet-mapping>
+
+    <!-- Add this new mapping -->
+    <servlet-mapping>
+        <servlet-name>Faces Servlet</servlet-name>
+        <url-pattern></url-pattern>
+    </servlet-mapping>
     
-    <!-- Welcome File List -->
     <welcome-file-list>
         <welcome-file>index.xhtml</welcome-file>
         <welcome-file>index.html</welcome-file>

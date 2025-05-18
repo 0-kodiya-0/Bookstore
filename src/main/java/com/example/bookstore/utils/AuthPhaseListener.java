@@ -20,7 +20,7 @@ public class AuthPhaseListener implements PhaseListener, Serializable {
             "/error.xhtml",
             "/books/list.xhtml",
             "/authors/list.xhtml",
-            "/javax.faces.resource/"
+            "/resources"
     );
 
     @Override
