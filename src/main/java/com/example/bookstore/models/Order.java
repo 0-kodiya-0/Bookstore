@@ -2,17 +2,21 @@ package com.example.bookstore.models;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import java.io.Serializable;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 public class Order implements Serializable {
     private static final long serialVersionUID = 1L;
     
     private Long id;
     private Long customerId;
+    
+    // Change LocalDateTime to java.util.Date which is better supported by Gson
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private LocalDateTime orderDate;
+    private Date orderDate;
     private List<OrderItem> items;
     private Double totalAmount;
     
@@ -23,7 +27,10 @@ public class Order implements Serializable {
     public Order(Long id, Long customerId) {
         this.id = id;
         this.customerId = customerId;
-        this.orderDate = LocalDateTime.now();
+        
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        this.orderDate = calendar.getTime();
+        
         this.items = new ArrayList<>();
         this.totalAmount = 0.0;
     }
@@ -45,11 +52,11 @@ public class Order implements Serializable {
         this.customerId = customerId;
     }
     
-    public LocalDateTime getOrderDate() {
+    public Date getOrderDate() {
         return orderDate;
     }
     
-    public void setOrderDate(LocalDateTime orderDate) {
+    public void setOrderDate(Date orderDate) {
         this.orderDate = orderDate;
     }
     

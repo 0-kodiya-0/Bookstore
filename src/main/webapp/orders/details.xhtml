@@ -20,9 +20,8 @@
                         <h:outputText escape="false" value="&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; class=&quot;h-4 w-4 mr-1.5&quot; fill=&quot;none&quot; viewBox=&quot;0 0 24 24&quot; stroke=&quot;currentColor&quot;&gt;
                             &lt;path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; stroke-width=&quot;2&quot; d=&quot;M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z&quot; /&gt;
                         &lt;/svg&gt;" />
-                        <h:outputText value="#{orderBean.order.orderDate}">
-                            <f:convertDateTime pattern="MMM dd, yyyy HH:mm"/>
-                        </h:outputText>
+                        <!-- Using our custom formatter method -->
+                        #{orderBean.formatOrderDate(orderBean.order.orderDate)}
                     </div>
                 </div>
                 

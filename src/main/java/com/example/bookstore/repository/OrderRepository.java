@@ -8,10 +8,11 @@ import com.example.bookstore.models.Cart;
 import com.example.bookstore.models.CartItem;
 import com.example.bookstore.models.Order;
 import com.example.bookstore.models.OrderItem;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
@@ -53,7 +54,9 @@ public class OrderRepository {
 
         // Create new order
         Order order = new Order(null, customerId);
-        order.setOrderDate(LocalDateTime.now());
+        
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        order.setOrderDate(calendar.getTime());
 
         // Add items to order
         for (CartItem cartItem : cart.getItems()) {

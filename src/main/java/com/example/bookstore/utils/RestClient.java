@@ -1,7 +1,6 @@
 package com.example.bookstore.utils;
 
 import java.io.Serializable;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -14,8 +13,18 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import java.lang.reflect.Type;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
 import com.google.gson.reflect.TypeToken;
 
 public class RestClient implements Serializable {
@@ -33,8 +42,20 @@ public class RestClient implements Serializable {
     public RestClient() {
         this.client = ClientBuilder.newClient();
         this.gson = new GsonBuilder()
-                .setDateFormat("yyyy-MM-dd'T'HH:mm:ss")
-                .create();
+        .registerTypeAdapter(Date.class, new JsonDeserializer<Date>() {
+            @Override
+            public Date deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+                try {
+                    SimpleDateFormat parser = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+                    parser.setTimeZone(TimeZone.getTimeZone("UTC"));
+                    return parser.parse(json.getAsString());
+                } catch (ParseException e) {
+                    return null;
+                }
+            }
+        })
+        .setDateFormat("yyyy-MM-dd'T'HH:mm:ss")
+        .create();
     }
 
     // Setter for JWT token

@@ -12,9 +12,16 @@ import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpSession;
 import java.io.Serializable;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -22,41 +29,66 @@ import javax.servlet.http.HttpServletResponse;
 @ManagedBean
 @ViewScoped
 public class OrderBean implements Serializable {
+
     private static final long serialVersionUID = 1L;
-    
-    private List<Order> orders;
-    private Order order;
+
+    private static final Logger LOGGER = Logger.getLogger(OrderBean.class.getName());
+
+    private List<Order> orders = new ArrayList<>();
+    private Order order = new Order();
     private Customer loggedInCustomer;
     private String jwtToken;
     private RestClient restClient = new RestClient();
-    
+
+    // Date formats for parsing and displaying
+    private SimpleDateFormat isoFormat;
+    private SimpleDateFormat displayFormat;
+
+    // Your local timezone - change this to your local timezone
+    private String localTimeZone = "Asia/Colombo"; // Change this to your timezone (example: Asia/Colombo for Sri Lanka)
+
     @PostConstruct
     public void init() {
+        isoFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+        isoFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+        displayFormat = new SimpleDateFormat("MMM dd, yyyy hh:mm a");
+        displayFormat.setTimeZone(TimeZone.getTimeZone(localTimeZone));
+
         // Initialize JWT token from session if available
         checkExistingAuthentication();
-        
+
         if (loggedInCustomer != null) {
-            loadCustomerOrders(loggedInCustomer.getId());
-            
-            // Check if there's an order ID in the request parameter
-            Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext()
-                                        .getRequestParameterMap();
-            String orderId = params.get("id");
-            if (orderId != null && !orderId.isEmpty()) {
-                try {
-                    Long id = Long.parseLong(orderId);
-                    loadOrder(loggedInCustomer.getId(), id);
-                } catch (NumberFormatException e) {
-                    FacesContext.getCurrentInstance().addMessage(null, 
-                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Invalid order ID"));
+            try {
+                loadCustomerOrders(loggedInCustomer.getId());
+
+                // Check if there's an order ID in the request parameter
+                Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext()
+                        .getRequestParameterMap();
+                String orderId = params.get("id");
+                if (orderId != null && !orderId.isEmpty()) {
+                    try {
+                        Long id = Long.parseLong(orderId);
+                        loadOrder(loggedInCustomer.getId(), id);
+                    } catch (NumberFormatException e) {
+                        FacesContext.getCurrentInstance().addMessage(null,
+                                new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Invalid order ID"));
+                    }
                 }
+            } catch (Exception e) {
+                LOGGER.log(Level.SEVERE, "Error loading orders: " + e.getMessage(), e);
+                // Initialize empty list on error
+                orders = new ArrayList<>();
+
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Could not load orders. Please try again later."));
             }
         } else {
             // No logged in user, initialize empty lists
             orders = new ArrayList<>();
         }
     }
-    
+
     private void checkExistingAuthentication() {
         // Check session first
         HttpSession session = (HttpSession) FacesContext.getCurrentInstance()
@@ -111,48 +143,94 @@ public class OrderBean implements Serializable {
             }
         }
     }
-    
+
     public void loadCustomerOrders(Long customerId) {
         try {
             orders = restClient.getAll("customers/" + customerId + "/orders", Order.class);
+            if (orders == null) {
+                orders = new ArrayList<>(); // Ensure we never have null orders
+            }
         } catch (Exception e) {
-            FacesContext.getCurrentInstance().addMessage(null, 
-                new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", e.getMessage()));
+            LOGGER.log(Level.SEVERE, "Error in loadCustomerOrders: " + e.getMessage(), e);
             // Initialize empty list on error
             orders = new ArrayList<>();
+
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Failed to load orders: " + e.getMessage()));
         }
     }
-    
+
     public void loadOrder(Long customerId, Long orderId) {
         try {
             order = restClient.get("customers/" + customerId + "/orders/" + orderId, Order.class);
         } catch (Exception e) {
-            FacesContext.getCurrentInstance().addMessage(null, 
-                new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", e.getMessage()));
+            LOGGER.log(Level.SEVERE, "Error in loadOrder: " + e.getMessage(), e);
+            // Initialize empty order on error
+            order = new Order();
+
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Failed to load order: " + e.getMessage()));
         }
     }
 
-    public String formatOrderDate(java.time.LocalDateTime date) {
-        if (date == null) {
-            return "";
+    /**
+     * Format the date for display in the UI with timezone conversion Can handle
+     * both java.util.Date and String representations
+     */
+    public String formatOrderDate(Object dateObj) {
+        try {
+            if (dateObj == null) {
+                return "";
+            }
+
+            Date date;
+            if (dateObj instanceof Date) {
+                date = (Date) dateObj;
+            } else if (dateObj instanceof String) {
+                try {
+                    // Try to parse the date string
+                    date = isoFormat.parse((String) dateObj);
+                } catch (ParseException e) {
+                    LOGGER.log(Level.WARNING, "Could not parse date: " + dateObj);
+                    return dateObj.toString();
+                }
+            } else {
+                return dateObj.toString();
+            }
+
+            return displayFormat.format(date);
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING, "Error formatting date: " + e.getMessage());
+            return String.valueOf(dateObj);
         }
-        return date.format(java.time.format.DateTimeFormatter.ofPattern("MMM dd, yyyy HH:mm"));
     }
-    
+
+    /**
+     * Get the current local time as a reference
+     */
+    public String getCurrentLocalTime() {
+        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(localTimeZone));
+        return displayFormat.format(cal.getTime());
+    }
+
     // Getters and setters
     public List<Order> getOrders() {
         return orders;
     }
-    
+
     public void setOrders(List<Order> orders) {
         this.orders = orders;
     }
-    
+
     public Order getOrder() {
         return order;
     }
-    
+
     public void setOrder(Order order) {
         this.order = order;
+    }
+
+    public String getLocalTimeZone() {
+        return localTimeZone;
     }
 }

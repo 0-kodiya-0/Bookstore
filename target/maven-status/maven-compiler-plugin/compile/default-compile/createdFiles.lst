@@ -45,6 +45,7 @@ com\example\bookstore\exception\InvalidInputException.class
 com\example\bookstore\models\Customer.class
 com\example\bookstore\exception\AuthorNotFoundException.class
 com\example\bookstore\filters\RequestLoggingFilter.class
+com\example\bookstore\utils\RestClient$1.class
 com\example\bookstore\filters\TrailingSlashFilter.class
 com\example\bookstore\exception\mapper\UnrecognizedFieldExceptionMapper.class
 com\example\bookstore\config\JacksonFeature.class
