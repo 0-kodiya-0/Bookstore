@@ -15,7 +15,7 @@ public class CustomerRepository {
 
     private static final Map<Long, Customer> customers = new ConcurrentHashMap<>();
     private static final AtomicLong customerIdCounter = new AtomicLong(1);
-    
+
     private CartRepository cartRepository;
 
     public void setCartRepository(CartRepository cartRepository) {
@@ -84,7 +84,7 @@ public class CustomerRepository {
     }
 
     // Update
-     public synchronized UpdateResponse<Customer> updateCustomer(Long id, Customer updatedCustomer) {
+    public synchronized UpdateResponse<Customer> updateCustomer(Long id, Customer updatedCustomer) {
         Customer currentCustomer = getCustomerById(id);
         int fieldsUpdated = 0;
         boolean updated = false;
@@ -94,7 +94,7 @@ public class CustomerRepository {
             if (!updatedCustomer.getEmail().contains("@")) {
                 throw new InvalidInputException("Email must be valid.");
             }
-            
+
             // Check if the update would create a duplicate email
             if (!normalizeEmail(currentCustomer.getEmail()).equals(normalizeEmail(updatedCustomer.getEmail()))
                     && isDuplicateEmail(updatedCustomer.getEmail())) {
@@ -118,7 +118,7 @@ public class CustomerRepository {
         }
 
         // Validate and update password
-        if (updatedCustomer.getPassword() != null) {
+        if (updatedCustomer.getPassword() != null && !updatedCustomer.getPassword().trim().isEmpty()) {
             if (updatedCustomer.getPassword().length() < 6) {
                 throw new InvalidInputException("Password must be at least 6 characters.");
             } else if (!currentCustomer.getPassword().equals(updatedCustomer.getPassword())) {
@@ -130,13 +130,13 @@ public class CustomerRepository {
 
         return new UpdateResponse<>(currentCustomer, updated, fieldsUpdated);
     }
-     
+
     // Delete
     public synchronized DeleteResponse deleteCustomer(Long id) {
         if (!exists(id)) {
             throw new CustomerNotFoundException(id);
         }
-        
+
         customers.remove(id);
         cartRepository.deleteCart(id);
         return new DeleteResponse(true, 1);

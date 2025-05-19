@@ -5,144 +5,193 @@
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
     <ui:composition template="/templates/layout.xhtml">
         <ui:define name="title">Bookstore - Shopping Cart</ui:define>
-        
+
         <ui:define name="content">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-                <h1 class="text-2xl md:text-3xl font-bold mb-8">Your Shopping Cart</h1>
-                
-                <h:form rendered="#{not empty cartBean.cart.items}">
-                    <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                        <!-- Cart Items for Desktop -->
-                        <div class="hidden md:block">
-                            <div class="grid grid-cols-12 gap-4 border-b border-gray-200 text-sm font-medium text-gray-500 p-4">
-                                <div class="col-span-5">Book</div>
-                                <div class="col-span-2 text-center">Price</div>
-                                <div class="col-span-2 text-center">Quantity</div>
-                                <div class="col-span-2 text-center">Total</div>
-                                <div class="col-span-1 text-right">Actions</div>
+            <h:form id="mainCartForm" prependId="false">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+                    <h1 class="text-2xl md:text-3xl font-bold mb-8">Your Shopping Cart</h1>
+
+                    <h:panelGroup id="cartContainer">
+                        <h:panelGroup rendered="#{not empty cartBean.cart.items}" layout="block">
+                            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                                <!-- Cart Items for Desktop -->
+                                <div class="hidden md:block">
+                                    <div class="grid grid-cols-12 gap-4 border-b border-gray-200 text-sm font-medium text-gray-500 p-4">
+                                        <div class="col-span-5">Book</div>
+                                        <div class="col-span-2 text-center">Price</div>
+                                        <div class="col-span-2 text-center">Quantity</div>
+                                        <div class="col-span-2 text-center">Total</div>
+                                        <div class="col-span-1 text-right">Actions</div>
+                                    </div>
+
+                                    <ui:repeat value="#{cartBean.cart.items}" var="item">
+                                        <div class="grid grid-cols-12 gap-4 p-4 border-b border-gray-100 items-center">
+                                            <div class="col-span-5 flex items-center">
+                                                <div class="w-16 h-20 overflow-hidden rounded mr-4 flex-shrink-0 bg-gray-100 flex items-center justify-center">
+                                                    <h:outputText escape="false" value="&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; class=&quot;h-8 w-8 text-gray-400&quot; fill=&quot;none&quot; viewBox=&quot;0 0 24 24&quot; stroke=&quot;currentColor&quot;&gt;
+                                                                  &lt;path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; stroke-width=&quot;2&quot; d=&quot;M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253&quot; /&gt;
+                                                                  &lt;/svg&gt;" />
+                                                </div>
+                                                <div>
+                                                    <h3 class="font-medium text-gray-800">
+                                                        <h:link outcome="/books/details" value="#{cartBean.getBookTitle(item.bookId)}" 
+                                                                styleClass="hover:text-primary transition-colors">
+                                                            <f:param name="id" value="#{item.bookId}"/>
+                                                        </h:link>
+                                                    </h3>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-span-2 text-center text-gray-700">
+                                                $<h:outputText value="#{cartBean.getBookPrice(item.bookId)}">
+                                                    <f:convertNumber type="currency" currencySymbol="" maxFractionDigits="2" minFractionDigits="2" />
+                                                </h:outputText>
+                                            </div>
+
+                                            <div class="col-span-2 text-center">
+                                                <div class="flex justify-center">
+                                                    <div class="inline-flex items-center">
+                                                        <h:commandButton value="-" 
+                                                                         action="#{cartBean.decrementQuantity(item.bookId)}" 
+                                                                         styleClass="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-600 border border-gray-300 rounded-l-md"
+                                                                         disabled="#{item.quantity eq 1}">
+                                                            <f:ajax execute="@this" render="cartContainer" />
+                                                        </h:commandButton>
+
+                                                        <span class="px-3 py-1 border-t border-b border-gray-300 min-w-[40px] text-center">
+                                                            #{item.quantity}
+                                                        </span>
+
+                                                        <h:commandButton value="+" 
+                                                                         action="#{cartBean.incrementQuantity(item.bookId)}" 
+                                                                         styleClass="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-600 border border-gray-300 rounded-r-md">
+                                                            <f:ajax execute="@this" render="cartContainer" />
+                                                        </h:commandButton>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-span-2 text-center font-medium text-gray-800">
+                                                $<h:outputText value="#{cartBean.getBookPrice(item.bookId) * item.quantity}">
+                                                    <f:convertNumber type="currency" currencySymbol="" maxFractionDigits="2" minFractionDigits="2" />
+                                                </h:outputText>
+                                            </div>
+
+                                            <div class="col-span-1 text-right">
+                                                <h:commandButton value="Remove" 
+                                                                 action="#{cartBean.removeFromCart(item.bookId)}"
+                                                                 styleClass="text-red-600 hover:text-red-800 transition-colors text-sm">
+                                                    <f:ajax execute="@this" render="cartContainer" />
+                                                </h:commandButton>
+                                            </div>
+                                        </div>
+                                    </ui:repeat>
+                                </div>
+
+                                <!-- Cart Items for Mobile -->
+                                <div class="md:hidden divide-y divide-gray-200">
+                                    <ui:repeat value="#{cartBean.cart.items}" var="item">
+                                        <div class="p-4">
+                                            <div class="flex items-center mb-3">
+                                                <div class="w-16 h-20 overflow-hidden rounded mr-3 flex-shrink-0 bg-gray-100 flex items-center justify-center">
+                                                    <h:outputText escape="false" value="&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; class=&quot;h-8 w-8 text-gray-400&quot; fill=&quot;none&quot; viewBox=&quot;0 0 24 24&quot; stroke=&quot;currentColor&quot;&gt;
+                                                                  &lt;path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; stroke-width=&quot;2&quot; d=&quot;M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253&quot; /&gt;
+                                                                  &lt;/svg&gt;" />
+                                                </div>
+                                                <div>
+                                                    <h3 class="font-medium text-gray-800 mb-1">
+                                                        <h:link outcome="/books/details" value="#{cartBean.getBookTitle(item.bookId)}" 
+                                                                styleClass="hover:text-primary transition-colors">
+                                                            <f:param name="id" value="#{item.bookId}"/>
+                                                        </h:link>
+                                                    </h3>
+                                                    <p class="text-primary font-medium">
+                                                        $<h:outputText value="#{cartBean.getBookPrice(item.bookId)}">
+                                                            <f:convertNumber type="currency" currencySymbol="" maxFractionDigits="2" minFractionDigits="2" />
+                                                        </h:outputText>
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            <div class="flex justify-between items-center">
+                                                <div class="flex items-center">
+                                                    <div class="inline-flex items-center">
+                                                        <h:commandButton value="-" 
+                                                                         action="#{cartBean.decrementQuantity(item.bookId)}" 
+                                                                         styleClass="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-600 border border-gray-300 rounded-l-md"
+                                                                         disabled="#{item.quantity eq 1}">
+                                                            <f:ajax execute="@this" render="cartContainer" />
+                                                        </h:commandButton>
+
+                                                        <span class="px-3 py-1 border-t border-b border-gray-300 min-w-[40px] text-center">
+                                                            #{item.quantity}
+                                                        </span>
+
+                                                        <h:commandButton value="+" 
+                                                                         action="#{cartBean.incrementQuantity(item.bookId)}" 
+                                                                         styleClass="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-600 border border-gray-300 rounded-r-md">
+                                                            <f:ajax execute="@this" render="cartContainer" />
+                                                        </h:commandButton>
+                                                    </div>
+                                                </div>
+
+                                                <div class="text-right">
+                                                    <div class="font-medium text-gray-800 mb-1">
+                                                        Total: $<h:outputText value="#{cartBean.getBookPrice(item.bookId) * item.quantity}">
+                                                            <f:convertNumber type="currency" currencySymbol="" maxFractionDigits="2" minFractionDigits="2" />
+                                                        </h:outputText>
+                                                    </div>
+                                                    <h:commandButton value="Remove" 
+                                                                     action="#{cartBean.removeFromCart(item.bookId)}"
+                                                                     styleClass="text-red-600 hover:text-red-800 transition-colors text-sm">
+                                                        <f:ajax execute="@this" render="cartContainer" />
+                                                    </h:commandButton>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </ui:repeat>
+                                </div>
+
+                                <!-- Cart Summary -->
+                                <div class="p-4 md:p-6 bg-gray-50 border-t border-gray-200">
+                                    <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+                                        <div class="flex items-end">
+                                            <span class="text-lg font-medium text-gray-800 mr-2">Total:</span>
+                                            <span class="text-2xl font-bold text-primary">
+                                                $<h:outputText value="#{cartBean.getCartTotal()}">
+                                                    <f:convertNumber type="currency" currencySymbol="" maxFractionDigits="2" minFractionDigits="2" />
+                                                </h:outputText>
+                                            </span>
+                                        </div>
+
+                                        <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
+                                            <h:link outcome="/books/list" value="Continue Shopping" 
+                                                    styleClass="inline-flex justify-center items-center px-4 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors"/>
+
+                                            <h:commandButton value="Checkout" 
+                                                             action="#{cartBean.checkout()}"
+                                                             styleClass="inline-flex justify-center items-center px-6 py-3 border border-transparent rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors"/>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            
-                            <ui:repeat value="#{cartBean.cart.items}" var="item">
-                                <div class="grid grid-cols-12 gap-4 p-4 border-b border-gray-100 items-center">
-                                    <div class="col-span-5 flex items-center">
-                                        <div class="w-16 h-20 overflow-hidden rounded mr-4 flex-shrink-0">
-                                            <h:graphicImage name="images/book-placeholder.jpg" alt="#{cartBean.getBookTitle(item.bookId)}" 
-                                                          styleClass="w-full h-full object-cover"/>
-                                        </div>
-                                        <div>
-                                            <h3 class="font-medium text-gray-800">
-                                                <h:link outcome="/books/details" value="#{cartBean.getBookTitle(item.bookId)}" 
-                                                       styleClass="hover:text-primary transition-colors">
-                                                    <f:param name="id" value="#{item.bookId}"/>
-                                                </h:link>
-                                            </h3>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="col-span-2 text-center text-gray-700">
-                                        $#{cartBean.getBookPrice(item.bookId)}
-                                    </div>
-                                    
-                                    <div class="col-span-2 text-center">
-                                        <div class="flex justify-center">
-                                            <h:inputText value="#{item.quantity}" styleClass="quantity-input w-16 text-center border border-gray-300 rounded py-1 px-2 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50">
-                                                <f:validateLongRange minimum="1"/>
-                                                <f:ajax event="change" listener="#{cartBean.updateCartItem(item.bookId, item.quantity)}" render="@form"/>
-                                            </h:inputText>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="col-span-2 text-center font-medium text-gray-800">
-                                        $#{cartBean.getBookPrice(item.bookId) * item.quantity}
-                                    </div>
-                                    
-                                    <div class="col-span-1 text-right">
-                                        <h:commandButton value="Remove" 
-                                                       action="#{cartBean.removeFromCart(item.bookId)}"
-                                                       styleClass="text-red-600 hover:text-red-800 transition-colors text-sm">
-                                            <f:ajax render="@form" />
-                                        </h:commandButton>
-                                    </div>
-                                </div>
-                            </ui:repeat>
-                        </div>
-                        
-                        <!-- Cart Items for Mobile -->
-                        <div class="md:hidden divide-y divide-gray-200">
-                            <ui:repeat value="#{cartBean.cart.items}" var="item">
-                                <div class="p-4">
-                                    <div class="flex items-center mb-3">
-                                        <div class="w-16 h-20 overflow-hidden rounded mr-3 flex-shrink-0">
-                                            <h:graphicImage name="images/book-placeholder.jpg" alt="#{cartBean.getBookTitle(item.bookId)}" 
-                                                         styleClass="w-full h-full object-cover"/>
-                                        </div>
-                                        <div>
-                                            <h3 class="font-medium text-gray-800 mb-1">
-                                                <h:link outcome="/books/details" value="#{cartBean.getBookTitle(item.bookId)}" 
-                                                       styleClass="hover:text-primary transition-colors">
-                                                    <f:param name="id" value="#{item.bookId}"/>
-                                                </h:link>
-                                            </h3>
-                                            <p class="text-primary font-medium">$#{cartBean.getBookPrice(item.bookId)}</p>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="flex justify-between items-center">
-                                        <div class="flex items-center">
-                                            <span class="text-sm text-gray-500 mr-2">Quantity:</span>
-                                            <h:inputText value="#{item.quantity}" styleClass="quantity-input w-16 text-center border border-gray-300 rounded py-1 px-2 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50">
-                                                <f:validateLongRange minimum="1"/>
-                                                <f:ajax event="change" listener="#{cartBean.updateCartItem(item.bookId, item.quantity)}" render="@form"/>
-                                            </h:inputText>
-                                        </div>
-                                        
-                                        <div class="text-right">
-                                            <div class="font-medium text-gray-800 mb-1">Total: $#{cartBean.getBookPrice(item.bookId) * item.quantity}</div>
-                                            <h:commandButton value="Remove" 
-                                                           action="#{cartBean.removeFromCart(item.bookId)}"
-                                                           styleClass="text-red-600 hover:text-red-800 transition-colors text-sm">
-                                                <f:ajax render="@form" />
-                                            </h:commandButton>
-                                        </div>
-                                    </div>
-                                </div>
-                            </ui:repeat>
-                        </div>
-                        
-                        <!-- Cart Summary -->
-                        <div class="p-4 md:p-6 bg-gray-50 border-t border-gray-200">
-                            <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
-                                <div class="flex items-end">
-                                    <span class="text-lg font-medium text-gray-800 mr-2">Total:</span>
-                                    <span class="text-2xl font-bold text-primary">$#{cartBean.getCartTotal()}</span>
-                                </div>
-                                
-                                <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
-                                    <h:link outcome="/books/list" value="Continue Shopping" 
-                                           styleClass="inline-flex justify-center items-center px-4 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors"/>
-                                    
-                                    <h:commandButton value="Checkout" 
-                                                   action="#{cartBean.checkout()}"
-                                                   styleClass="inline-flex justify-center items-center px-6 py-3 border border-transparent rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors"/>
-                                </div>
+                        </h:panelGroup>
+
+                        <h:panelGroup rendered="#{empty cartBean.cart.items}" layout="block" 
+                                      styleClass="text-center py-12">
+                            <div class="inline-block p-6 rounded-full bg-gray-100 mb-4">
+                                <h:outputText escape="false" value="&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; class=&quot;h-12 w-12 text-gray-400&quot; fill=&quot;none&quot; viewBox=&quot;0 0 24 24&quot; stroke=&quot;currentColor&quot;&gt;
+                                              &lt;path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; stroke-width=&quot;2&quot; d=&quot;M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z&quot; /&gt;
+                                              &lt;/svg&gt;" />
                             </div>
-                        </div>
-                    </div>
-                </h:form>
-                
-                <h:panelGroup rendered="#{empty cartBean.cart.items}" layout="block" 
-                             styleClass="text-center py-12 bg-white rounded-lg shadow-md">
-                    <div class="inline-block p-6 rounded-full bg-gray-100 mb-4">
-                        <h:outputText escape="false" value="&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; class=&quot;h-12 w-12 text-gray-400&quot; fill=&quot;none&quot; viewBox=&quot;0 0 24 24&quot; stroke=&quot;currentColor&quot;&gt;
-                            &lt;path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; stroke-width=&quot;2&quot; d=&quot;M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z&quot; /&gt;
-                        &lt;/svg&gt;" />
-                    </div>
-                    <h2 class="text-xl font-bold text-gray-700 mb-2">Your cart is empty</h2>
-                    <p class="text-gray-500 mb-6">You have no items in your shopping cart.</p>
-                    <h:link outcome="/books/list" value="Browse Books" 
-                           styleClass="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors"/>
-                </h:panelGroup>
-            </div>
+                            <h2 class="text-xl font-bold text-gray-700 mb-2">Your cart is empty</h2>
+                            <p class="text-gray-500 mb-6">You have no items in your shopping cart.</p>
+                            <h:link outcome="/books/list" value="Browse Books" 
+                                    styleClass="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors"/>
+                        </h:panelGroup>
+                    </h:panelGroup>
+                </div>
+            </h:form>
         </ui:define>
     </ui:composition>
 </html>

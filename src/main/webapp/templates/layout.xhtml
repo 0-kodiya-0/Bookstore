@@ -38,23 +38,30 @@
             <div id="header" class="sticky top-0 z-10">
                 <ui:include src="/templates/header.xhtml"/>
             </div>
-            
+
             <div id="messages" class="max-w-7xl mx-auto px-4 w-full">
-                <h:messages globalOnly="true" 
-                           styleClass="p-4 my-4 bg-blue-100 border-l-4 border-blue-500 text-blue-700" 
-                           errorClass="p-4 my-4 bg-red-100 border-l-4 border-red-500 text-red-700"/>
+                <h:panelGroup id="messagesPanel">
+                    <h:messages globalOnly="true" 
+                                styleClass="p-4 my-4 bg-blue-100 border-l-4 border-blue-500 text-blue-700" 
+                                errorClass="p-4 my-4 bg-red-100 border-l-4 border-red-500 text-red-700"/>
+                </h:panelGroup>
             </div>
-            
+
             <div id="content" class="flex-grow">
                 <ui:insert name="content">
                     Default content
                 </ui:insert>
             </div>
-            
+
             <div id="footer" class="mt-auto">
                 <ui:include src="/templates/footer.xhtml"/>
             </div>
         </div>
         <h:outputScript name="js/scripts.js"/>
+        <script type="text/javascript">
+            function scrollToTop() {
+                window.scrollTo({top: 0, behavior: 'smooth'});
+            }
+        </script>
     </h:body>
 </html>

@@ -15,7 +15,6 @@ import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -204,15 +203,7 @@ public class OrderBean implements Serializable {
             return String.valueOf(dateObj);
         }
     }
-
-    /**
-     * Get the current local time as a reference
-     */
-    public String getCurrentLocalTime() {
-        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(localTimeZone));
-        return displayFormat.format(cal.getTime());
-    }
-
+    
     // Getters and setters
     public List<Order> getOrders() {
         return orders;

@@ -10,6 +10,7 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import java.io.Serializable;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 
@@ -73,7 +74,7 @@ public class BookBean implements Serializable {
 
     public String updateBook() {
         try {
-            restClient.put("books/" + book.getId(), book);
+            restClient.put("books/" + book.getId(), book, Book.class);
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_INFO, "Success", "Book updated successfully"));
             return "list?faces-redirect=true";
@@ -108,6 +109,11 @@ public class BookBean implements Serializable {
         }
 
         return "Unknown Author";
+    }
+
+    public int getCurrentYear() {
+        Calendar calendar = Calendar.getInstance();
+        return calendar.get(Calendar.YEAR);
     }
 
     // Getters and setters

@@ -72,7 +72,7 @@ public class AuthorBean implements Serializable {
 
     public String updateAuthor() {
         try {
-            restClient.put("authors/" + author.getId(), author);
+            restClient.put("authors/" + author.getId(), author, Author.class);
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_INFO, "Success", "Author updated successfully"));
             return "list?faces-redirect=true";

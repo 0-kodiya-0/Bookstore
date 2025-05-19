@@ -3,6 +3,7 @@ package com.example.bookstore.bean;
 import com.example.bookstore.models.Customer;
 import com.example.bookstore.models.LoginRequest;
 import com.example.bookstore.models.LoginResponse;
+import com.example.bookstore.models.UpdateResponse;
 import com.example.bookstore.resources.AuthResource;
 import com.example.bookstore.utils.JwtUtil;
 import com.example.bookstore.utils.RestClient;
@@ -26,7 +27,7 @@ import java.util.logging.Logger;
 public class CustomerBean implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    
+
     private static final Logger LOGGER = Logger.getLogger(AuthResource.class.getName());
 
     private Customer customer = new Customer();
@@ -261,18 +262,47 @@ public class CustomerBean implements Serializable {
 
     public String updateProfile() {
         try {
-            restClient.put("customers/" + loggedInCustomer.getId(), customer);
+            // Create a copy of the customer for update
+            Customer customerToUpdate = new Customer();
+            customerToUpdate.setId(loggedInCustomer.getId());
+            customerToUpdate.setName(loggedInCustomer.getName());
+            customerToUpdate.setEmail(loggedInCustomer.getEmail());
 
-            // Update session with updated customer
-            loggedInCustomer = customer;
-            HttpSession session = (HttpSession) FacesContext.getCurrentInstance()
-                    .getExternalContext().getSession(false);
-            session.setAttribute("loggedInCustomer", loggedInCustomer);
+            // Only include the password if it's not empty and changed
+            if (loggedInCustomer.getPassword() != null && !loggedInCustomer.getPassword().isEmpty()) {
+                customerToUpdate.setPassword(loggedInCustomer.getPassword());
+            }
 
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Success", "Profile updated successfully"));
+            // Send update to the API
+            UpdateResponse<Customer> response = restClient.put("customers/" + loggedInCustomer.getId(), customerToUpdate, Customer.class);
 
-            return "/customers/profile?faces-redirect=true";
+            if (response != null && response.getEntity() != null) {
+                // Update the loggedInCustomer with the new data
+                Customer updatedCustomer = response.getEntity();
+
+                // Update session with the new customer data
+                loggedInCustomer.setName(updatedCustomer.getName());
+                loggedInCustomer.setEmail(updatedCustomer.getEmail());
+
+                // Don't update password in memory if it wasn't changed
+                if (customerToUpdate.getPassword() != null) {
+                    loggedInCustomer.setPassword(updatedCustomer.getPassword());
+                }
+
+                // Update the session
+                HttpSession session = (HttpSession) FacesContext.getCurrentInstance()
+                        .getExternalContext().getSession(false);
+                session.setAttribute("loggedInCustomer", loggedInCustomer);
+
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_INFO, "Success", "Profile updated successfully"));
+
+                return "/customers/profile?faces-redirect=true";
+            } else {
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Failed to update profile"));
+                return null;
+            }
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", e.getMessage()));

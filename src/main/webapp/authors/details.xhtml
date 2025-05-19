@@ -5,32 +5,35 @@
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
     <ui:composition template="/templates/layout.xhtml">
         <ui:define name="title">Bookstore - Author Details</ui:define>
-        
+
         <f:metadata>
             <f:viewParam name="id" value="#{authorBean.author.id}"/>
             <f:event type="preRenderView" listener="#{authorBean.loadAuthor(authorBean.author.id)}"/>
             <f:event type="preRenderView" listener="#{authorBean.loadAuthorBooks(authorBean.author.id)}"/>
         </f:metadata>
-        
+
         <ui:define name="content">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
                 <div class="bg-white rounded-lg shadow-md overflow-hidden">
                     <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4">
                         <div class="p-6 flex justify-center md:border-r border-gray-100">
                             <div class="w-56 h-56 relative">
-                                <h:graphicImage name="images/author-placeholder.jpg" alt="#{authorBean.author.name}"
-                                              styleClass="w-full h-full object-cover rounded-full shadow-md"/>
+                                <div class="w-full h-full flex items-center justify-center bg-gray-100 rounded-full shadow-md">
+                                    <h:outputText escape="false" value="&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; class=&quot;h-24 w-24 text-gray-400&quot; fill=&quot;none&quot; viewBox=&quot;0 0 24 24&quot; stroke=&quot;currentColor&quot;&gt;
+                                                  &lt;path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; stroke-width=&quot;2&quot; d=&quot;M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z&quot; /&gt;
+                                                  &lt;/svg&gt;" />
+                                </div>
                             </div>
                         </div>
-                        
+
                         <div class="p-6 md:col-span-2 lg:col-span-3">
                             <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-6">#{authorBean.author.name}</h1>
-                            
+
                             <h3 class="text-lg font-semibold text-gray-700 mb-2">Biography</h3>
                             <div class="prose max-w-none text-gray-600 mb-6">
                                 <p>#{authorBean.author.biography}</p>
                             </div>
-                            
+
                             <h:form rendered="#{customerBean.loggedIn and customerBean.loggedInCustomer.name eq 'Admin'}" styleClass="mt-6">
                                 <div class="flex flex-wrap gap-3">
                                     <h:link outcome="/authors/edit" styleClass="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 transition-colors">
@@ -38,62 +41,35 @@
                                         Edit Author
                                     </h:link>
                                     <h:commandButton value="Delete Author" 
-                                                   action="#{authorBean.deleteAuthor(authorBean.author.id)}"
-                                                   styleClass="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors"
-                                                   onclick="return confirm('Are you sure you want to delete this author?')"/>
+                                                     action="#{authorBean.deleteAuthor(authorBean.author.id)}"
+                                                     styleClass="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors"
+                                                     onclick="return confirm('Are you sure you want to delete this author?')"/>
                                 </div>
                             </h:form>
                         </div>
                     </div>
                 </div>
-                
+
                 <h2 class="text-2xl font-bold mt-12 mb-6">Books by #{authorBean.author.name}</h2>
-                
+
                 <h:form>
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                         <ui:repeat value="#{authorBean.authorBooks}" var="book">
-                            <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-                                <div class="h-40 overflow-hidden">
-                                    <h:graphicImage name="images/book-placeholder.jpg" alt="#{book.title}" 
-                                                   styleClass="w-full h-full object-cover hover:scale-105 transition-transform"/>
-                                </div>
-                                <div class="p-4">
-                                    <h3 class="text-lg font-semibold h-14 overflow-hidden line-clamp-2">
-                                        <h:link outcome="/books/details" value="#{book.title}" 
-                                               styleClass="text-gray-800 hover:text-primary transition-colors">
-                                            <f:param name="id" value="#{book.id}"/>
-                                        </h:link>
-                                    </h3>
-                                    <p class="text-gray-500 text-sm mb-1">Published: #{book.publicationYear}</p>
-                                    <p class="text-primary font-bold text-lg mb-2">$#{book.price}</p>
-                                    <p class="text-sm mb-3">
-                                        <span class="#{book.stock > 0 ? 'text-green-600' : 'text-red-600'}">
-                                            #{book.stock > 0 ? "#{book.stock} in stock" : 'Out of Stock'}
-                                        </span>
-                                    </p>
-                                    
-                                    <div class="flex items-center gap-2">
-                                        <h:commandButton value="Add to Cart" 
-                                                       action="#{cartBean.addToCart(book.id)}"
-                                                       styleClass="flex-grow bg-primary text-white py-2 px-3 rounded text-center hover:bg-primary-dark transition-colors"
-                                                       rendered="#{book.stock > 0}"/>
-                                        <h:outputText value="Out of Stock" 
-                                                      styleClass="flex-grow block bg-gray-200 text-gray-600 py-2 px-3 rounded text-center"
-                                                      rendered="#{book.stock == 0}"/>
-                                    </div>
-                                </div>
-                            </div>
+                            <ui:include src="/components/bookCard.xhtml">
+                                <ui:param name="book" value="#{book}" />
+                                <ui:param name="showAdminControls" value="false" />
+                            </ui:include>
                         </ui:repeat>
+
+                        <h:panelGroup layout="block" styleClass="text-center mt-8 col-span-full" rendered="#{empty authorBean.authorBooks}">
+                            <p class="text-lg font-medium">No books found for this author.</p>
+                        </h:panelGroup>
                     </div>
-                    
-                    <h:panelGroup layout="block" styleClass="text-center mt-8 text-gray-500" rendered="#{empty authorBean.authorBooks}">
-                        <p class="text-lg font-medium">No books found for this author.</p>
-                    </h:panelGroup>
                 </h:form>
-                
+
                 <div class="mt-8">
                     <h:link outcome="/authors/list" value="← Back to Authors" 
-                           styleClass="inline-flex items-center text-gray-600 hover:text-primary transition-colors"/>
+                            styleClass="inline-flex items-center text-gray-600 hover:text-primary transition-colors"/>
                 </div>
             </div>
         </ui:define>

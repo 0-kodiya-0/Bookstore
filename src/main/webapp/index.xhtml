@@ -5,7 +5,7 @@
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
     <ui:composition template="/templates/layout.xhtml">
         <ui:define name="title">Bookstore - Home</ui:define>
-        
+
         <ui:define name="content">
             <div class="relative bg-gradient-to-r from-blue-800 to-primary py-16 md:py-24 px-4 sm:px-6">
                 <div class="max-w-7xl mx-auto text-center text-white">
@@ -16,81 +16,64 @@
                 </div>
                 <div class="absolute inset-0 bg-pattern opacity-10"></div>
             </div>
-            
+
             <div class="max-w-7xl mx-auto px-4 sm:px-6 py-12">
                 <h2 class="text-2xl md:text-3xl font-bold text-center mb-12 relative after:content-[''] after:block after:w-16 after:h-1 after:bg-primary after:mx-auto after:mt-4">Featured Books</h2>
-                
+
                 <h:form>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
-                        <!-- Removed the size attribute to avoid iteration beyond available items -->
+                    <!-- Books grid with consistent sizing -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <!-- Empty state for when no books are available -->
+                        <h:panelGroup layout="block" rendered="#{empty bookBean.books}" 
+                                      styleClass="col-span-full py-8 text-center">
+                            <h:outputText escape="false" value="&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; class=&quot;h-16 w-16 mx-auto mb-4 text-gray-400&quot; fill=&quot;none&quot; viewBox=&quot;0 0 24 24&quot; stroke=&quot;currentColor&quot;&gt;
+                                          &lt;path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; stroke-width=&quot;2&quot; d=&quot;M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253&quot; /&gt;
+                                          &lt;/svg&gt;" />
+                            <h3 class="text-lg font-medium text-gray-700 mb-2">No Books Available</h3>
+                            <p class="text-gray-500">Books will appear here once they are added to the system.</p>
+                        </h:panelGroup>
+
+                        <!-- Books listing using the template -->
                         <ui:repeat value="#{bookBean.books}" var="book">
-                            <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-                                <div class="h-48 overflow-hidden">
-                                    <h:graphicImage name="images/book-placeholder.jpg" alt="#{book.title}" 
-                                                   styleClass="w-full h-full object-cover hover:scale-105 transition-transform"/>
-                                </div>
-                                <div class="p-4">
-                                    <h3 class="text-lg font-semibold h-14 overflow-hidden line-clamp-2">
-                                        <h:link outcome="/books/details" value="#{book.title}" 
-                                               styleClass="text-gray-800 hover:text-primary transition-colors">
-                                            <f:param name="id" value="#{book.id}"/>
-                                        </h:link>
-                                    </h3>
-                                    <p class="text-gray-600 text-sm mb-2">by 
-                                        <h:link outcome="/authors/details" value="#{bookBean.getAuthorName(book.authorId)}" 
-                                               styleClass="hover:text-primary transition-colors">
-                                            <f:param name="id" value="#{book.authorId}"/>
-                                        </h:link>
-                                    </p>
-                                    <p class="text-primary font-bold mb-3">$#{book.price}</p>
-                                    <h:commandButton value="Add to Cart" 
-                                                   action="#{cartBean.addToCart(book.id)}"
-                                                   styleClass="w-full bg-primary text-white py-2 px-4 rounded text-center hover:bg-primary-dark transition-colors"
-                                                   rendered="#{book.stock > 0}"/>
-                                    <h:outputText value="Out of Stock" 
-                                                 styleClass="w-full block bg-gray-200 text-gray-600 py-2 px-4 rounded text-center"
-                                                 rendered="#{book.stock == 0}"/>
-                                </div>
-                            </div>
+                            <ui:include src="/components/bookCard.xhtml">
+                                <ui:param name="book" value="#{book}" />
+                                <ui:param name="showAdminControls" value="false" />
+                            </ui:include>
                         </ui:repeat>
                     </div>
                 </h:form>
-                
+
                 <div class="text-center mt-8">
                     <h:link outcome="/books/list" value="View All Books →" 
-                           styleClass="text-primary hover:text-primary-dark font-medium text-lg inline-flex items-center transition-colors"/>
+                            styleClass="text-primary hover:text-primary-dark font-medium text-lg inline-flex items-center transition-colors"/>
                 </div>
-                
+
                 <h2 class="text-2xl md:text-3xl font-bold text-center mb-12 mt-16 relative after:content-[''] after:block after:w-16 after:h-1 after:bg-primary after:mx-auto after:mt-4">Featured Authors</h2>
-                
+
+                <!-- Authors section later in the file -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <!-- Removed the size attribute to avoid iteration beyond available items -->
+                    <!-- Empty state for when no authors are available -->
+                    <h:panelGroup layout="block" rendered="#{empty authorBean.authors}" 
+                                  styleClass="col-span-full py-8 text-center">
+                        <h:outputText escape="false" value="&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; class=&quot;h-16 w-16 mx-auto mb-4 text-gray-400&quot; fill=&quot;none&quot; viewBox=&quot;0 0 24 24&quot; stroke=&quot;currentColor&quot;&gt;
+                                      &lt;path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; stroke-width=&quot;2&quot; d=&quot;M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z&quot; /&gt;
+                                      &lt;/svg&gt;" />
+                        <h3 class="text-lg font-medium text-gray-700 mb-2">No Authors Available</h3>
+                        <p class="text-gray-500">Authors will appear here once they are added to the system.</p>
+                    </h:panelGroup>
+
+                    <!-- Authors listing using the template -->
                     <ui:repeat value="#{authorBean.authors}" var="author">
-                        <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-                            <div class="h-48 overflow-hidden">
-                                <h:graphicImage name="images/author-placeholder.jpg" alt="#{author.name}" 
-                                               styleClass="w-full h-full object-cover hover:scale-105 transition-transform"/>
-                            </div>
-                            <div class="p-4">
-                                <h3 class="text-lg font-semibold mb-2">
-                                    <h:link outcome="/authors/details" value="#{author.name}" 
-                                           styleClass="text-gray-800 hover:text-primary transition-colors">
-                                        <f:param name="id" value="#{author.id}"/>
-                                    </h:link>
-                                </h3>
-                                <p class="text-gray-600 text-sm line-clamp-3 h-14 overflow-hidden mb-4">#{author.biography}</p>
-                                <h:link outcome="/authors/details" value="View Books" 
-                                       styleClass="inline-block text-primary border border-primary hover:bg-primary hover:text-white py-2 px-4 rounded transition-colors">
-                                    <f:param name="id" value="#{author.id}"/>
-                                </h:link>
-                            </div>
-                        </div>
+                        <ui:include src="/components/authorCard.xhtml">
+                            <ui:param name="author" value="#{author}" />
+                            <ui:param name="showAdminControls" value="false" />
+                        </ui:include>
                     </ui:repeat>
                 </div>
-                
+
                 <div class="text-center mt-8">
                     <h:link outcome="/authors/list" value="View All Authors →" 
-                           styleClass="text-primary hover:text-primary-dark font-medium text-lg inline-flex items-center transition-colors"/>
+                            styleClass="text-primary hover:text-primary-dark font-medium text-lg inline-flex items-center transition-colors"/>
                 </div>
             </div>
         </ui:define>

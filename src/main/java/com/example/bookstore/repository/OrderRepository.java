@@ -8,6 +8,8 @@ import com.example.bookstore.models.Cart;
 import com.example.bookstore.models.CartItem;
 import com.example.bookstore.models.Order;
 import com.example.bookstore.models.OrderItem;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -81,8 +83,8 @@ public class OrderRepository {
             bookRepository.reduceStock(book.getId(), cartItem.getQuantity());
         }
 
-        // Calculate total
-        order.calculateTotal();
+        // Calculate total with proper rounding
+        calculateTotal(order);
 
         order.setId(orderIdCounter.getAndIncrement());
         orders.put(order.getId(), order);
@@ -124,5 +126,22 @@ public class OrderRepository {
             return order;
         }
         return null;
+    }
+    
+    // Helper method to calculate total with proper rounding to 2 decimal places
+    private void calculateTotal(Order order) {
+        BigDecimal total = BigDecimal.ZERO;
+        
+        for (OrderItem item : order.getItems()) {
+            BigDecimal price = BigDecimal.valueOf(item.getPrice());
+            BigDecimal quantity = BigDecimal.valueOf(item.getQuantity());
+            BigDecimal itemTotal = price.multiply(quantity);
+            total = total.add(itemTotal);
+        }
+        
+        // Round to exactly 2 decimal places
+        total = total.setScale(2, RoundingMode.HALF_EVEN);
+        
+        order.setTotalAmount(total.doubleValue());
     }
 }
