@@ -140,3 +140,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
+
+## Latest Release
+
+The latest release is [v1.0.0](docs/releases/v1.0.0/RELEASE-NOTES.md).
+Download the WAR file from our [GitHub Releases](https://github.com/yourusername/bookstore/releases/tag/v1.0.0) page.
