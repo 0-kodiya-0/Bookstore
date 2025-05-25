@@ -10,6 +10,10 @@ on:
         description: 'Release tag to deploy (e.g., v1.0.0)'
         required: true
         default: 'v1.0.0'
+      project_id:
+        description: 'DigitalOcean Project ID (optional - uses default if not specified)'
+        required: false
+        default: ''
 
 env:
   APP_NAME: "bookstore-app"
@@ -25,7 +29,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
     
-    - name: Set release tag
+    - name: Set release tag and project
       id: release
       run: |
         if [ "${{ github.event_name }}" = "release" ]; then
@@ -36,6 +40,17 @@ jobs:
           echo "🔧 Manual deployment triggered for: $RELEASE_TAG"
         fi
         echo "release_tag=$RELEASE_TAG" >> $GITHUB_OUTPUT
+        
+        # Handle project ID
+        PROJECT_ID="${{ github.event.inputs.project_id || '' }}"
+        if [ -n "$PROJECT_ID" ]; then
+          echo "📋 Using specified project ID: $PROJECT_ID"
+          echo "project_id=$PROJECT_ID" >> $GITHUB_OUTPUT
+          echo "use_project=true" >> $GITHUB_OUTPUT
+        else
+          echo "📋 No project specified - will use account default"
+          echo "use_project=false" >> $GITHUB_OUTPUT
+        fi
     
     - name: Download WAR file from release
       run: |
@@ -74,6 +89,31 @@ jobs:
       uses: digitalocean/action-doctl@v2
       with:
         token: ${{ secrets.DO_TOKEN }}
+    
+    - name: List available projects
+      if: steps.release.outputs.use_project == 'false'
+      run: |
+        echo "📋 Available projects in your account:"
+        doctl projects list --output json | jq -r '.[] | "  • \(.name) (ID: \(.id))"'
+        echo ""
+        echo "💡 To deploy to a specific project, use the 'project_id' input parameter"
+        echo "   when running this workflow manually, or set DO_PROJECT_ID secret"
+    
+    - name: Validate project ID
+      if: steps.release.outputs.use_project == 'true'
+      run: |
+        PROJECT_ID="${{ steps.release.outputs.project_id }}"
+        echo "🔍 Validating project ID: $PROJECT_ID"
+        
+        if ! doctl projects get $PROJECT_ID >/dev/null 2>&1; then
+          echo "❌ Project ID '$PROJECT_ID' not found or inaccessible"
+          echo "📋 Available projects:"
+          doctl projects list --output json | jq -r '.[] | "  • \(.name) (ID: \(.id))"'
+          exit 1
+        fi
+        
+        PROJECT_NAME=$(doctl projects get $PROJECT_ID --output json | jq -r '.name')
+        echo "✅ Validated project: $PROJECT_NAME (ID: $PROJECT_ID)"
     
     - name: Check and create container registry
       id: registry
@@ -213,19 +253,22 @@ jobs:
         APP_ID=""
         APP_EXISTS=false
         
-        # Get all apps and find ours by name - FIXED: Use --output json instead of --format JSON
-        APPS_JSON=$(doctl apps list --output json)
-        
-        if [ "$APPS_JSON" != "null" ] && [ "$APPS_JSON" != "[]" ]; then
-          APP_ID=$(echo "$APPS_JSON" | jq -r ".[] | select(.spec.name == \"$APP_NAME\") | .id")
+        # Get all apps and find ours by name - with project info if specified
+        if [ "${{ steps.release.outputs.use_project }}" = "true" ]; then
+          APPS_JSON=$(doctl apps list --with-projects --output json)
+          PROJECT_ID="${{ steps.release.outputs.project_id }}"
           
-          if [ -n "$APP_ID" ] && [ "$APP_ID" != "null" ]; then
-            echo "✅ App '$APP_NAME' found with ID: $APP_ID"
-            APP_EXISTS=true
-          fi
+          # Filter by both name and project
+          APP_ID=$(echo "$APPS_JSON" | jq -r ".[] | select(.spec.name == \"$APP_NAME\" and .project_id == \"$PROJECT_ID\") | .id")
+        else
+          APPS_JSON=$(doctl apps list --output json)
+          APP_ID=$(echo "$APPS_JSON" | jq -r ".[] | select(.spec.name == \"$APP_NAME\") | .id")
         fi
         
-        if [ "$APP_EXISTS" = false ]; then
+        if [ -n "$APP_ID" ] && [ "$APP_ID" != "null" ]; then
+          echo "✅ App '$APP_NAME' found with ID: $APP_ID"
+          APP_EXISTS=true
+        else
           echo "📝 App '$APP_NAME' not found, will create new app"
         fi
         
@@ -238,45 +281,56 @@ jobs:
         IMAGE_FULL_NAME="${{ steps.registry.outputs.registry_url }}/$IMAGE_NAME"
         APP_EXISTS="${{ steps.app_check.outputs.app_exists }}"
         APP_ID="${{ steps.app_check.outputs.app_id }}"
+        USE_PROJECT="${{ steps.release.outputs.use_project }}"
+        PROJECT_ID="${{ steps.release.outputs.project_id }}"
         
         # Create app specification
-        cat > app-spec.yaml << EOF
+        cat > app-spec.yaml << 'EOF'
+        name: bookstore-app
+        region: blr
         alerts:
         - rule: DEPLOYMENT_FAILED
         - rule: DOMAIN_FAILED
-        features:
-        - buildpack-stack=ubuntu-22
-        ingress:
-          rules:
-          - component:
-              name: $IMAGE_NAME
-            match:
-              authority:
-                exact: ""
-              path:
-                prefix: /
-        name: $APP_NAME
-        region: $REGION
         services:
-        - image:
+        - name: bookstore
+          image:
             registry_type: DOCR
-            repository: $IMAGE_NAME
+            registry: sanithujayafiverr
+            repository: bookstore
             tag: latest
           http_port: 8080
           instance_count: 1
           instance_size_slug: basic-xxs
-          name: $IMAGE_NAME
-          environment_slug: node-js
-          run_command: ""
         EOF
         
+        echo "📋 Generated app spec:"
+        cat app-spec.yaml
+        
+        # Validate the app spec first
+        echo "🔍 Validating app spec..."
+        if ! doctl apps spec validate app-spec.yaml; then
+          echo "❌ App spec validation failed!"
+          exit 1
+        fi
+        echo "✅ App spec validation passed"
+        
+        # Prepare command with optional project ID
         if [ "$APP_EXISTS" = "true" ]; then
           echo "🔄 Updating existing app with ID: $APP_ID"
           doctl apps update $APP_ID --spec app-spec.yaml --wait
           echo "app_id=$APP_ID" >> $GITHUB_OUTPUT
         else
           echo "🚀 Creating new App Platform app..."
-          CREATE_OUTPUT=$(doctl apps create --spec app-spec.yaml --output json --wait)
+          
+          # Build create command with optional project ID
+          if [ "$USE_PROJECT" = "true" ]; then
+            echo "📋 Creating app in project: $PROJECT_ID"
+            CREATE_OUTPUT=$(doctl apps create --spec app-spec.yaml --project-id "$PROJECT_ID" --output json --wait)
+          else
+            echo "📋 Creating app in default project"
+            CREATE_OUTPUT=$(doctl apps create --spec app-spec.yaml --output json --wait)
+          fi
+          
           NEW_APP_ID=$(echo "$CREATE_OUTPUT" | jq -r '.id')
           echo "✅ App created with ID: $NEW_APP_ID"
           echo "app_id=$NEW_APP_ID" >> $GITHUB_OUTPUT
@@ -288,13 +342,14 @@ jobs:
         IMAGE_EXISTS="${{ steps.image_check.outputs.image_exists }}"
         IMAGE_FULL_NAME="${{ steps.image_check.outputs.image_full_name }}"
         RELEASE_TAG="${{ steps.image_check.outputs.release_tag }}"
+        USE_PROJECT="${{ steps.release.outputs.use_project }}"
         
         echo "📊 Getting deployment status..."
         
-        # Get app details - FIXED: Use --output json instead of --format JSON
+        # Get app details
         APP_INFO=$(doctl apps get $APP_ID --output json)
         APP_URL=$(echo "$APP_INFO" | jq -r '.default_ingress // .live_url // empty')
-        DEPLOYMENT_STATUS=$(echo "$APP_INFO" | jq -r '.last_deployment_active_at // empty')
+        PROJECT_ID=$(echo "$APP_INFO" | jq -r '.project_id // empty')
         
         echo "✅ Deployment completed successfully!"
         echo ""
@@ -302,6 +357,10 @@ jobs:
         echo "================================================"
         echo "📋 App Name: $APP_NAME"
         echo "🆔 App ID: $APP_ID"
+        if [ -n "$PROJECT_ID" ] && [ "$PROJECT_ID" != "null" ]; then
+          PROJECT_NAME=$(doctl projects get $PROJECT_ID --output json | jq -r '.name // "Unknown"')
+          echo "📁 Project: $PROJECT_NAME ($PROJECT_ID)"
+        fi
         echo "📦 Image: ${IMAGE_FULL_NAME}:${RELEASE_TAG}"
         echo "🏷️ Release: $RELEASE_TAG"
         echo "♻️  Image Reused: $([ "$IMAGE_EXISTS" = "true" ] && echo "Yes (existing)" || echo "No (newly built)")"
