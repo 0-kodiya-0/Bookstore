@@ -368,8 +368,21 @@ jobs:
         
         # Get app details
         APP_INFO=$(doctl apps get $APP_ID --output json)
-        APP_URL=$(echo "$APP_INFO" | jq -r '.default_ingress // .live_url // empty')
-        PROJECT_ID=$(echo "$APP_INFO" | jq -r '.project_id // empty')
+        
+        # Debug: Show the full response structure
+        echo "🔍 DEBUG: APP_INFO structure:"
+        echo "$APP_INFO" | jq 'type'
+        
+        # Parse app details - handle both array and object responses
+        if echo "$APP_INFO" | jq -e 'type == "array"' >/dev/null 2>&1; then
+          echo "📋 Response is an array, getting first element"
+          APP_URL=$(echo "$APP_INFO" | jq -r '.[0].default_ingress // .[0].live_url // empty')
+          PROJECT_ID=$(echo "$APP_INFO" | jq -r '.[0].project_id // empty')
+        else
+          echo "📋 Response is an object, getting fields directly"
+          APP_URL=$(echo "$APP_INFO" | jq -r '.default_ingress // .live_url // empty')
+          PROJECT_ID=$(echo "$APP_INFO" | jq -r '.project_id // empty')
+        fi
         
         echo "✅ Deployment completed successfully!"
         echo ""
