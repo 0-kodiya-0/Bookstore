@@ -1,0 +1,59 @@
+# File: .dockerignore
+# Location: Repository root (same level as Dockerfile)
+# Purpose: Tells Docker which files to ignore when building containers
+# This makes your container smaller and build faster
+
+# Git files (not needed in container)
+.git
+.gitignore
+.gitattributes
+
+# GitHub workflows (not needed in container)
+.github/
+
+# Documentation (not needed in container)
+README.md
+ROADMAP.md
+LICENSE
+*.md
+
+# IDE files (not needed in container)
+.vscode/
+.idea/
+*.iml
+.project
+.classpath
+.settings/
+
+# OS files (not needed in container)
+.DS_Store
+Thumbs.db
+.env
+
+# Build artifacts that aren't the final WAR
+target/
+!target/*.war
+src/
+pom.xml
+nb-configuration.xml
+
+# App Platform config (not needed in container)
+.do/
+
+# Other common files to exclude
+node_modules/
+npm-debug.log
+.npm
+.nyc_output
+coverage/
+
+# What this does:
+# 1. Reduces container size by excluding unnecessary files
+# 2. Speeds up Docker build process
+# 3. Improves security by not including source code or configs
+# 4. Only includes the essential files needed to run your app
+
+# Your container will only contain:
+# - Base Tomcat image
+# - Your bookstore-1.0.0.war file
+# - Runtime configuration
