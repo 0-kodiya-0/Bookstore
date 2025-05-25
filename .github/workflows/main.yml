@@ -112,7 +112,7 @@ jobs:
           exit 1
         fi
         
-        PROJECT_NAME=$(doctl projects get $PROJECT_ID --output json | jq -r '[0].name')
+        PROJECT_NAME=$(doctl projects get $PROJECT_ID --output json | jq -r '.[0].name')
         echo "✅ Validated project: $PROJECT_NAME (ID: $PROJECT_ID)"
     
     - name: Check and create container registry
@@ -417,7 +417,7 @@ jobs:
         echo "📋 App Name: $APP_NAME"
         echo "🆔 App ID: $APP_ID"
         if [ -n "$PROJECT_ID" ] && [ "$PROJECT_ID" != "null" ]; then
-          PROJECT_NAME=$(doctl projects get $PROJECT_ID --output json | jq -r '[0].name // "Unknown"')
+          PROJECT_NAME=$(doctl projects get $PROJECT_ID --output json | jq -r '.[0].name // "Unknown"')
           echo "📁 Project: $PROJECT_NAME ($PROJECT_ID)"
         fi
         echo "📦 Image: ${IMAGE_FULL_NAME}:${RELEASE_TAG}"
