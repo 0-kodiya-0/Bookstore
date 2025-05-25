@@ -149,22 +149,30 @@ jobs:
         
         echo "🔍 Checking if image already exists for release: $RELEASE_TAG"
         
-        # Check if the specific release tag exists in registry
+        # Check if the specific release tag exists in registry without downloading
         IMAGE_EXISTS=false
-        IMAGE_MANIFEST=""
         
-        # Try to get image manifest for the specific release tag
-        if docker manifest inspect ${IMAGE_FULL_NAME}:${RELEASE_TAG} >/dev/null 2>&1; then
-          echo "✅ Image found: ${IMAGE_FULL_NAME}:${RELEASE_TAG}"
+        # Method 1: Use doctl registry repository list-tags (most efficient for DO registry)
+        echo "📋 Checking DigitalOcean registry for existing tags..."
+        if doctl registry repository list-tags $REGISTRY_NAME/$IMAGE_NAME --output json | jq -e --arg tag "$RELEASE_TAG" '.[] | select(.tag == $tag)' >/dev/null 2>&1; then
+          echo "✅ Image found in DO registry: ${IMAGE_FULL_NAME}:${RELEASE_TAG}"
           IMAGE_EXISTS=true
-          
-          # Get image creation date and labels for verification
-          IMAGE_MANIFEST=$(docker manifest inspect ${IMAGE_FULL_NAME}:${RELEASE_TAG})
-          echo "📋 Image manifest found, checking metadata..."
-          
         else
-          echo "❌ Image not found: ${IMAGE_FULL_NAME}:${RELEASE_TAG}"
-          IMAGE_EXISTS=false
+          # Method 2: Fallback to Docker manifest inspect (doesn't download image)
+          echo "📋 Fallback: Using Docker manifest inspection..."
+          if docker manifest inspect ${IMAGE_FULL_NAME}:${RELEASE_TAG} >/dev/null 2>&1; then
+            echo "✅ Image manifest found: ${IMAGE_FULL_NAME}:${RELEASE_TAG}"
+            IMAGE_EXISTS=true
+          else
+            echo "❌ Image not found: ${IMAGE_FULL_NAME}:${RELEASE_TAG}"
+            IMAGE_EXISTS=false
+          fi
+        fi
+        
+        if [ "$IMAGE_EXISTS" = "true" ]; then
+          echo "📋 Image exists - no build needed for this release"
+        else
+          echo "📋 Image not found - will build and push new image"
         fi
         
         echo "image_exists=$IMAGE_EXISTS" >> $GITHUB_OUTPUT
@@ -236,13 +244,31 @@ jobs:
         echo "♻️  Using existing image: ${IMAGE_FULL_NAME}:${RELEASE_TAG}"
         echo "⚡ Skipping build - image already exists for this release"
         
-        # Update latest tag to point to this release (in case it's different)
-        echo "🔄 Updating 'latest' tag to point to $RELEASE_TAG"
-        docker pull ${IMAGE_FULL_NAME}:${RELEASE_TAG}
-        docker tag ${IMAGE_FULL_NAME}:${RELEASE_TAG} ${IMAGE_FULL_NAME}:latest
-        docker push ${IMAGE_FULL_NAME}:latest
+        # Only update latest tag if it's different from current latest
+        echo "🔄 Checking if 'latest' tag needs updating..."
         
-        echo "✅ Latest tag updated successfully!"
+        # Get current latest tag digest
+        LATEST_DIGEST=""
+        RELEASE_DIGEST=""
+        
+        if LATEST_DIGEST=$(docker manifest inspect ${IMAGE_FULL_NAME}:latest 2>/dev/null | jq -r '.config.digest // empty'); then
+          echo "📋 Current latest digest: $LATEST_DIGEST"
+        fi
+        
+        if RELEASE_DIGEST=$(docker manifest inspect ${IMAGE_FULL_NAME}:${RELEASE_TAG} 2>/dev/null | jq -r '.config.digest // empty'); then
+          echo "📋 Release tag digest: $RELEASE_DIGEST"
+        fi
+        
+        # Only pull and push if digests are different
+        if [ "$LATEST_DIGEST" != "$RELEASE_DIGEST" ] || [ -z "$LATEST_DIGEST" ]; then
+          echo "🔄 Updating 'latest' tag to point to $RELEASE_TAG"
+          docker pull ${IMAGE_FULL_NAME}:${RELEASE_TAG}
+          docker tag ${IMAGE_FULL_NAME}:${RELEASE_TAG} ${IMAGE_FULL_NAME}:latest
+          docker push ${IMAGE_FULL_NAME}:latest
+          echo "✅ Latest tag updated successfully!"
+        else
+          echo "✅ Latest tag already points to the same image - no update needed!"
+        fi
     
     - name: Check if App Platform app exists
       id: app_check
