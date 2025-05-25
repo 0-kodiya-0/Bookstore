@@ -1,27 +1,30 @@
-# File: .github/workflows/main.yml
-name: Deploy Release to DigitalOcean App Platform
+# .github/workflows/main.yml
+name: Deploy Bookstore to DigitalOcean App Platform
 
-# TRIGGER: This workflow runs when you publish a release OR manually trigger it
 on:
   release:
-    types: [published]  # When you click "Publish release"
-  workflow_dispatch:   # Manual trigger for testing
+    types: [published]
+  workflow_dispatch:
     inputs:
       release_tag:
         description: 'Release tag to deploy (e.g., v1.0.0)'
         required: true
         default: 'v1.0.0'
 
+env:
+  APP_NAME: "bookstore-app"
+  REGISTRY_NAME: "bookstore-registry"
+  IMAGE_NAME: "bookstore"
+  REGION: "blr"
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
     
     steps:
-    # STEP 1: Get access to your repository code
     - name: Checkout code
       uses: actions/checkout@v4
     
-    # STEP 2: Determine which release to deploy
     - name: Set release tag
       id: release
       run: |
@@ -32,121 +35,219 @@ jobs:
           RELEASE_TAG="${{ github.event.inputs.release_tag }}"
           echo "🔧 Manual deployment triggered for: $RELEASE_TAG"
         fi
-        
         echo "release_tag=$RELEASE_TAG" >> $GITHUB_OUTPUT
-        echo "Release tag: $RELEASE_TAG"
     
-    # STEP 3: Download the WAR file from your release
     - name: Download WAR file from release
       run: |
         RELEASE_TAG="${{ steps.release.outputs.release_tag }}"
         echo "📦 Looking for WAR file in release: $RELEASE_TAG"
         
-        # Use GitHub API to find the WAR file in your release
-        echo "🔍 Checking release: https://api.github.com/repos/${{ github.repository }}/releases/tags/${RELEASE_TAG}"
-        
         RELEASE_DATA=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
           "https://api.github.com/repos/${{ github.repository }}/releases/tags/${RELEASE_TAG}")
         
-        # Check if release exists
         if echo "$RELEASE_DATA" | jq -e '.message == "Not Found"' > /dev/null; then
           echo "❌ Release '$RELEASE_TAG' not found!"
           echo "Available releases:"
           curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             "https://api.github.com/repos/${{ github.repository }}/releases" | \
-            jq -r '.[].tag_name' | head -10
+            jq -r '.[].tag_name' | head -5
           exit 1
         fi
         
-        # Find WAR file in release assets
         WAR_URL=$(echo "$RELEASE_DATA" | jq -r '.assets[] | select(.name | endswith(".war")) | .browser_download_url')
         
-        # Check if WAR file was found
         if [ -z "$WAR_URL" ] || [ "$WAR_URL" = "null" ]; then
           echo "❌ No WAR file found in release assets for '$RELEASE_TAG'"
           echo "Available assets:"
           echo "$RELEASE_DATA" | jq -r '.assets[].name'
-          echo ""
-          echo "💡 Make sure you:"
-          echo "1. Built your project: mvn clean package"
-          echo "2. Uploaded the WAR file to your release"
-          echo "3. Used the correct release tag"
           exit 1
         fi
         
-        # Download the WAR file
         echo "📥 Downloading: $WAR_URL"
         curl -L -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
              -o bookstore-1.0.0.war "$WAR_URL"
         
-        # Verify the download worked
-        if [ ! -f "bookstore-1.0.0.war" ]; then
-          echo "❌ Failed to download WAR file"
-          exit 1
-        fi
-        
         echo "✅ Downloaded WAR file:"
         ls -lh bookstore-1.0.0.war
     
-    # STEP 4: Install DigitalOcean CLI tool
     - name: Install doctl
       uses: digitalocean/action-doctl@v2
       with:
         token: ${{ secrets.DO_TOKEN }}
     
-    # STEP 5: Build Docker container and push to registry
+    - name: Check and create container registry
+      id: registry
+      run: |
+        echo "🔍 Checking if container registry exists..."
+        
+        # Check if registry exists
+        if doctl registry get $REGISTRY_NAME >/dev/null 2>&1; then
+          echo "✅ Registry '$REGISTRY_NAME' already exists"
+          REGISTRY_EXISTS=true
+        else
+          echo "📝 Creating container registry '$REGISTRY_NAME'..."
+          doctl registry create $REGISTRY_NAME --region $REGION
+          echo "✅ Registry '$REGISTRY_NAME' created successfully"
+          REGISTRY_EXISTS=false
+          
+          # Wait a moment for registry to be ready
+          sleep 10
+        fi
+        
+        echo "registry_exists=$REGISTRY_EXISTS" >> $GITHUB_OUTPUT
+        echo "registry_url=registry.digitalocean.com/$REGISTRY_NAME" >> $GITHUB_OUTPUT
+    
     - name: Build and push Docker image
       run: |
         # Login to DigitalOcean Container Registry
+        echo "🔐 Logging into container registry..."
         doctl registry login
         
-        # Build the Docker image using your Dockerfile
-        IMAGE_NAME="registry.digitalocean.com/${{ secrets.DO_REGISTRY_NAME }}/bookstore"
+        IMAGE_FULL_NAME="${{ steps.registry.outputs.registry_url }}/$IMAGE_NAME"
         RELEASE_TAG="${{ steps.release.outputs.release_tag }}"
         
         echo "🏗️ Building Docker image..."
-        docker build -t ${IMAGE_NAME}:${RELEASE_TAG} .
-        docker build -t ${IMAGE_NAME}:latest .
+        echo "Image: $IMAGE_FULL_NAME"
         
-        # Push both the version tag and 'latest' tag
+        # Build with multiple tags
+        docker build -t ${IMAGE_FULL_NAME}:${RELEASE_TAG} .
+        docker build -t ${IMAGE_FULL_NAME}:latest .
+        
         echo "📤 Pushing to DigitalOcean Container Registry..."
-        docker push ${IMAGE_NAME}:${RELEASE_TAG}
-        docker push ${IMAGE_NAME}:latest
+        docker push ${IMAGE_FULL_NAME}:${RELEASE_TAG}
+        docker push ${IMAGE_FULL_NAME}:latest
         
         echo "✅ Container image pushed successfully!"
         echo "🏷️ Tags: ${RELEASE_TAG}, latest"
     
-    # STEP 6: Deploy to App Platform
-    - name: Deploy to App Platform
+    - name: Check if App Platform app exists
+      id: app_check
       run: |
-        APP_ID="${{ secrets.DO_APP_ID }}"
+        echo "🔍 Checking if App Platform app exists..."
         
-        echo "🚀 Triggering deployment for App Platform..."
-        echo "App ID: $APP_ID"
+        # Try to get app by name (we'll search through all apps)
+        APP_ID=""
+        APP_EXISTS=false
         
-        # Tell App Platform to deploy the new container
-        doctl apps create-deployment $APP_ID --wait
+        # Get all apps and find ours by name
+        APPS_JSON=$(doctl apps list --format JSON)
         
-        echo "✅ Deployment completed!"
+        if [ "$APPS_JSON" != "null" ] && [ "$APPS_JSON" != "[]" ]; then
+          APP_ID=$(echo "$APPS_JSON" | jq -r ".[] | select(.spec.name == \"$APP_NAME\") | .id")
+          
+          if [ -n "$APP_ID" ] && [ "$APP_ID" != "null" ]; then
+            echo "✅ App '$APP_NAME' found with ID: $APP_ID"
+            APP_EXISTS=true
+          fi
+        fi
         
-        # Get the URL where your app is running
-        APP_URL=$(doctl apps get $APP_ID --format URL --no-header)
-        echo "🌐 Your application is available at: $APP_URL"
+        if [ "$APP_EXISTS" = false ]; then
+          echo "📝 App '$APP_NAME' not found, will create new app"
+        fi
         
-    # STEP 7: Show deployment summary
-    - name: Deployment Summary
+        echo "app_exists=$APP_EXISTS" >> $GITHUB_OUTPUT
+        echo "app_id=$APP_ID" >> $GITHUB_OUTPUT
+    
+    - name: Create or update App Platform app
+      id: app_deploy
       run: |
-        RELEASE_TAG="${{ steps.release.outputs.release_tag }}"
+        IMAGE_FULL_NAME="${{ steps.registry.outputs.registry_url }}/$IMAGE_NAME"
+        APP_EXISTS="${{ steps.app_check.outputs.app_exists }}"
+        APP_ID="${{ steps.app_check.outputs.app_id }}"
+        
+        # Create app specification
+        cat > app-spec.yaml << EOF
+        alerts:
+        - rule: DEPLOYMENT_FAILED
+        - rule: DOMAIN_FAILED
+        features:
+        - buildpack-stack=ubuntu-22
+        ingress:
+          rules:
+          - component:
+              name: $IMAGE_NAME
+            match:
+              authority:
+                exact: ""
+              path:
+                prefix: /
+        name: $APP_NAME
+        region: $REGION
+        services:
+        - image:
+            registry_type: DOCR
+            repository: $IMAGE_NAME
+            tag: latest
+          http_port: 8080
+          instance_count: 1
+          instance_size_slug: apps-s-1vcpu-0.5gb
+          name: $IMAGE_NAME
+          environment_slug: node-js
+          run_command: ""
+        EOF
+        
+        if [ "$APP_EXISTS" = "true" ]; then
+          echo "🔄 Updating existing app with ID: $APP_ID"
+          doctl apps update $APP_ID --spec app-spec.yaml --wait
+          echo "app_id=$APP_ID" >> $GITHUB_OUTPUT
+        else
+          echo "🚀 Creating new App Platform app..."
+          CREATE_OUTPUT=$(doctl apps create --spec app-spec.yaml --format JSON --wait)
+          NEW_APP_ID=$(echo "$CREATE_OUTPUT" | jq -r '.id')
+          echo "✅ App created with ID: $NEW_APP_ID"
+          echo "app_id=$NEW_APP_ID" >> $GITHUB_OUTPUT
+        fi
+    
+    - name: Get deployment status and URL
+      run: |
+        APP_ID="${{ steps.app_deploy.outputs.app_id }}"
+        
+        echo "📊 Getting deployment status..."
+        
+        # Get app details
+        APP_INFO=$(doctl apps get $APP_ID --format JSON)
+        APP_URL=$(echo "$APP_INFO" | jq -r '.default_ingress // .live_url // empty')
+        DEPLOYMENT_STATUS=$(echo "$APP_INFO" | jq -r '.last_deployment_active_at // empty')
+        
+        echo "✅ Deployment completed successfully!"
         echo ""
-        echo "🎉 DEPLOYMENT COMPLETED SUCCESSFULLY!"
+        echo "🎉 DEPLOYMENT SUMMARY"
         echo "================================================"
-        echo "📋 Release Version: $RELEASE_TAG"
-        echo "📦 WAR File: bookstore-1.0.0.war"
-        echo "🐳 Container: Tomcat 9.0.100 + JDK 8"
-        echo "🏗️ Platform: DigitalOcean App Platform"
-        echo "💰 Monthly Cost: ~$12 (Basic instance)"
-        echo "🔒 HTTPS: Automatic SSL certificate"
-        echo "📊 Monitoring: Built-in metrics and logs"
-        echo "⚡ Scaling: Automatic load balancing"
+        echo "📋 App Name: $APP_NAME"
+        echo "🆔 App ID: $APP_ID"
+        echo "📦 Image: ${{ steps.registry.outputs.registry_url }}/$IMAGE_NAME:latest"
+        echo "🏷️ Release: ${{ steps.release.outputs.release_tag }}"
+        echo "🌍 Region: $REGION"
+        echo "💰 Instance: apps-s-1vcpu-0.5gb (~$12/month)"
         echo "================================================"
-        echo "✅ Your Bookstore application is now LIVE!"
+        
+        if [ -n "$APP_URL" ] && [ "$APP_URL" != "null" ]; then
+          echo "🌐 Your application is available at: $APP_URL"
+          echo "📱 Direct link: $APP_URL/bookstore/"
+        else
+          echo "⏳ URL will be available once deployment completes"
+          echo "   Check your DigitalOcean dashboard for the URL"
+        fi
+        
+        echo ""
+        echo "🔗 Useful commands:"
+        echo "   Monitor logs: doctl apps logs $APP_ID --follow"
+        echo "   Check status: doctl apps get $APP_ID"
+        echo "   View in dashboard: https://cloud.digitalocean.com/apps/$APP_ID"
+    
+    - name: Cleanup on failure
+      if: failure()
+      run: |
+        echo "🧹 Cleaning up on failure..."
+        
+        # If we created a registry but deployment failed, optionally clean it up
+        if [ "${{ steps.registry.outputs.registry_exists }}" = "false" ]; then
+          echo "⚠️  Registry was created during this run"
+          echo "   You may want to clean it up: doctl registry delete $REGISTRY_NAME"
+        fi
+        
+        # If we created an app but it failed, optionally clean it up
+        if [ "${{ steps.app_check.outputs.app_exists }}" = "false" ] && [ -n "${{ steps.app_deploy.outputs.app_id }}" ]; then
+          echo "⚠️  App was created during this run: ${{ steps.app_deploy.outputs.app_id }}"
+          echo "   You may want to clean it up: doctl apps delete ${{ steps.app_deploy.outputs.app_id }}"
+        fi
