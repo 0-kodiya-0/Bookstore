@@ -6,7 +6,7 @@ LABEL maintainer="Sanithu Jayakody santihujayafiverr@gmail.com"
 LABEL application="Bookstore"
 LABEL version="1.0.0"
 
-# Install curl for health checks
+# Install curl for health checks (using yum since this is Amazon Linux)
 RUN yum update -y && yum install -y curl && yum clean all
 
 # Remove default Tomcat webapps for security and performance
@@ -19,9 +19,8 @@ RUN rm -rf /usr/local/tomcat/webapps/ROOT \
 # Copy your WAR file into the container
 COPY bookstore-1.0.0.war /usr/local/tomcat/webapps/bookstore.war
 
-# Set proper file ownership for security
-RUN chown tomcat:tomcat /usr/local/tomcat/webapps/bookstore.war && \
-    chmod 644 /usr/local/tomcat/webapps/bookstore.war
+# Set proper file permissions (root owns files, which is fine for containers)
+RUN chmod 644 /usr/local/tomcat/webapps/bookstore.war
 
 # Configure JVM settings optimized for containers
 ENV JAVA_OPTS="-Djava.awt.headless=true \
