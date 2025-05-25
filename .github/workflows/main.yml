@@ -213,8 +213,8 @@ jobs:
         APP_ID=""
         APP_EXISTS=false
         
-        # Get all apps and find ours by name
-        APPS_JSON=$(doctl apps list --format JSON)
+        # Get all apps and find ours by name - FIXED: Use --output json instead of --format JSON
+        APPS_JSON=$(doctl apps list --output json)
         
         if [ "$APPS_JSON" != "null" ] && [ "$APPS_JSON" != "[]" ]; then
           APP_ID=$(echo "$APPS_JSON" | jq -r ".[] | select(.spec.name == \"$APP_NAME\") | .id")
@@ -276,7 +276,7 @@ jobs:
           echo "app_id=$APP_ID" >> $GITHUB_OUTPUT
         else
           echo "🚀 Creating new App Platform app..."
-          CREATE_OUTPUT=$(doctl apps create --spec app-spec.yaml --format JSON --wait)
+          CREATE_OUTPUT=$(doctl apps create --spec app-spec.yaml --output json --wait)
           NEW_APP_ID=$(echo "$CREATE_OUTPUT" | jq -r '.id')
           echo "✅ App created with ID: $NEW_APP_ID"
           echo "app_id=$NEW_APP_ID" >> $GITHUB_OUTPUT
@@ -291,8 +291,8 @@ jobs:
         
         echo "📊 Getting deployment status..."
         
-        # Get app details
-        APP_INFO=$(doctl apps get $APP_ID --format JSON)
+        # Get app details - FIXED: Use --output json instead of --format JSON
+        APP_INFO=$(doctl apps get $APP_ID --output json)
         APP_URL=$(echo "$APP_INFO" | jq -r '.default_ingress // .live_url // empty')
         DEPLOYMENT_STATUS=$(echo "$APP_INFO" | jq -r '.last_deployment_active_at // empty')
         
