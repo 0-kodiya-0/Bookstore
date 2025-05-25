@@ -9,6 +9,7 @@ name: Deploy Release to DigitalOcean App Platform
 on:
   release:
     types: [published]  # Only when you click "Publish release"
+  workflow_dispatch:
 
 jobs:
   deploy:
