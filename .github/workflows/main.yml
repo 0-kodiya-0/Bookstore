@@ -97,7 +97,8 @@ jobs:
         echo "registry_exists=$REGISTRY_EXISTS" >> $GITHUB_OUTPUT
         echo "registry_url=registry.digitalocean.com/$REGISTRY_NAME" >> $GITHUB_OUTPUT
     
-    - name: Build and push Docker image
+    - name: Check if image already exists
+      id: image_check
       run: |
         # Login to DigitalOcean Container Registry
         echo "🔐 Logging into container registry..."
@@ -106,19 +107,102 @@ jobs:
         IMAGE_FULL_NAME="${{ steps.registry.outputs.registry_url }}/$IMAGE_NAME"
         RELEASE_TAG="${{ steps.release.outputs.release_tag }}"
         
-        echo "🏗️ Building Docker image..."
-        echo "Image: $IMAGE_FULL_NAME"
+        echo "🔍 Checking if image already exists for release: $RELEASE_TAG"
         
-        # Build with multiple tags
-        docker build -t ${IMAGE_FULL_NAME}:${RELEASE_TAG} .
-        docker build -t ${IMAGE_FULL_NAME}:latest .
+        # Check if the specific release tag exists in registry
+        IMAGE_EXISTS=false
+        IMAGE_MANIFEST=""
+        
+        # Try to get image manifest for the specific release tag
+        if docker manifest inspect ${IMAGE_FULL_NAME}:${RELEASE_TAG} >/dev/null 2>&1; then
+          echo "✅ Image found: ${IMAGE_FULL_NAME}:${RELEASE_TAG}"
+          IMAGE_EXISTS=true
+          
+          # Get image creation date and labels for verification
+          IMAGE_MANIFEST=$(docker manifest inspect ${IMAGE_FULL_NAME}:${RELEASE_TAG})
+          echo "📋 Image manifest found, checking metadata..."
+          
+        else
+          echo "❌ Image not found: ${IMAGE_FULL_NAME}:${RELEASE_TAG}"
+          IMAGE_EXISTS=false
+        fi
+        
+        echo "image_exists=$IMAGE_EXISTS" >> $GITHUB_OUTPUT
+        echo "image_full_name=$IMAGE_FULL_NAME" >> $GITHUB_OUTPUT
+        echo "release_tag=$RELEASE_TAG" >> $GITHUB_OUTPUT
+    
+    - name: Get WAR file hash for comparison
+      id: war_hash
+      run: |
+        # Calculate hash of the WAR file to compare with existing image
+        WAR_HASH=$(sha256sum bookstore-1.0.0.war | cut -d' ' -f1)
+        echo "📋 WAR file hash: $WAR_HASH"
+        echo "war_hash=$WAR_HASH" >> $GITHUB_OUTPUT
+        
+        # Store release info for image labeling
+        RELEASE_TAG="${{ steps.image_check.outputs.release_tag }}"
+        BUILD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+        COMMIT_SHA="${{ github.sha }}"
+        
+        echo "build_date=$BUILD_DATE" >> $GITHUB_OUTPUT
+        echo "commit_sha=$COMMIT_SHA" >> $GITHUB_OUTPUT
+    
+    - name: Build and push Docker image
+      if: steps.image_check.outputs.image_exists == 'false'
+      run: |
+        IMAGE_FULL_NAME="${{ steps.image_check.outputs.image_full_name }}"
+        RELEASE_TAG="${{ steps.image_check.outputs.release_tag }}"
+        WAR_HASH="${{ steps.war_hash.outputs.war_hash }}"
+        BUILD_DATE="${{ steps.war_hash.outputs.build_date }}"
+        COMMIT_SHA="${{ steps.war_hash.outputs.commit_sha }}"
+        
+        echo "🏗️ Building Docker image with version tracking..."
+        echo "Image: $IMAGE_FULL_NAME"
+        echo "Release: $RELEASE_TAG"
+        echo "WAR Hash: $WAR_HASH"
+        
+        # Build with comprehensive labels for tracking
+        docker build \
+          --build-arg BUILD_DATE="$BUILD_DATE" \
+          --build-arg VCS_REF="$COMMIT_SHA" \
+          --build-arg VERSION="$RELEASE_TAG" \
+          --label "org.opencontainers.image.version=$RELEASE_TAG" \
+          --label "org.opencontainers.image.created=$BUILD_DATE" \
+          --label "org.opencontainers.image.revision=$COMMIT_SHA" \
+          --label "org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}" \
+          --label "bookstore.war.hash=$WAR_HASH" \
+          --label "bookstore.release.tag=$RELEASE_TAG" \
+          --label "bookstore.build.workflow=${{ github.run_id }}" \
+          -t ${IMAGE_FULL_NAME}:${RELEASE_TAG} \
+          .
+        
+        # Also tag as latest
+        docker tag ${IMAGE_FULL_NAME}:${RELEASE_TAG} ${IMAGE_FULL_NAME}:latest
         
         echo "📤 Pushing to DigitalOcean Container Registry..."
         docker push ${IMAGE_FULL_NAME}:${RELEASE_TAG}
         docker push ${IMAGE_FULL_NAME}:latest
         
-        echo "✅ Container image pushed successfully!"
+        echo "✅ Container image built and pushed successfully!"
         echo "🏷️ Tags: ${RELEASE_TAG}, latest"
+        echo "🔗 Image: ${IMAGE_FULL_NAME}:${RELEASE_TAG}"
+    
+    - name: Use existing image
+      if: steps.image_check.outputs.image_exists == 'true'
+      run: |
+        IMAGE_FULL_NAME="${{ steps.image_check.outputs.image_full_name }}"
+        RELEASE_TAG="${{ steps.image_check.outputs.release_tag }}"
+        
+        echo "♻️  Using existing image: ${IMAGE_FULL_NAME}:${RELEASE_TAG}"
+        echo "⚡ Skipping build - image already exists for this release"
+        
+        # Update latest tag to point to this release (in case it's different)
+        echo "🔄 Updating 'latest' tag to point to $RELEASE_TAG"
+        docker pull ${IMAGE_FULL_NAME}:${RELEASE_TAG}
+        docker tag ${IMAGE_FULL_NAME}:${RELEASE_TAG} ${IMAGE_FULL_NAME}:latest
+        docker push ${IMAGE_FULL_NAME}:latest
+        
+        echo "✅ Latest tag updated successfully!"
     
     - name: Check if App Platform app exists
       id: app_check
@@ -201,6 +285,9 @@ jobs:
     - name: Get deployment status and URL
       run: |
         APP_ID="${{ steps.app_deploy.outputs.app_id }}"
+        IMAGE_EXISTS="${{ steps.image_check.outputs.image_exists }}"
+        IMAGE_FULL_NAME="${{ steps.image_check.outputs.image_full_name }}"
+        RELEASE_TAG="${{ steps.image_check.outputs.release_tag }}"
         
         echo "📊 Getting deployment status..."
         
@@ -215,8 +302,9 @@ jobs:
         echo "================================================"
         echo "📋 App Name: $APP_NAME"
         echo "🆔 App ID: $APP_ID"
-        echo "📦 Image: ${{ steps.registry.outputs.registry_url }}/$IMAGE_NAME:latest"
-        echo "🏷️ Release: ${{ steps.release.outputs.release_tag }}"
+        echo "📦 Image: ${IMAGE_FULL_NAME}:${RELEASE_TAG}"
+        echo "🏷️ Release: $RELEASE_TAG"
+        echo "♻️  Image Reused: $([ "$IMAGE_EXISTS" = "true" ] && echo "Yes (existing)" || echo "No (newly built)")"
         echo "🌍 Region: $REGION"
         echo "💰 Instance: basic-xxs (~$5/month)"
         echo "================================================"

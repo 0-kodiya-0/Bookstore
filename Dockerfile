@@ -1,10 +1,20 @@
 # Dockerfile
 FROM tomcat:9.0.100-jdk8-corretto
 
-# Set metadata for the image
+# Build arguments for version tracking
+ARG BUILD_DATE
+ARG VCS_REF
+ARG VERSION
+
+# Set metadata with version information
 LABEL maintainer="Sanithu Jayakody santihujayafiverr@gmail.com"
 LABEL application="Bookstore"
-LABEL version="1.0.0"
+LABEL version="${VERSION}"
+LABEL org.opencontainers.image.version="${VERSION}"
+LABEL org.opencontainers.image.created="${BUILD_DATE}"
+LABEL org.opencontainers.image.revision="${VCS_REF}"
+LABEL org.opencontainers.image.title="Bookstore Application"
+LABEL org.opencontainers.image.description="Java Bookstore Web Application"
 
 # Install curl for health checks (using yum since this is Amazon Linux)
 RUN yum update -y && yum install -y curl && yum clean all
