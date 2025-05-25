@@ -331,7 +331,27 @@ jobs:
             CREATE_OUTPUT=$(doctl apps create --spec app-spec.yaml --output json --wait)
           fi
           
-          NEW_APP_ID=$(echo "$CREATE_OUTPUT" | jq -r '.id')
+          # Debug: Show the full response
+          echo "🔍 DEBUG: Full CREATE_OUTPUT:"
+          echo "$CREATE_OUTPUT"
+          
+          # Parse the app ID from the response
+          # First, check if it's an array or object
+          if echo "$CREATE_OUTPUT" | jq -e 'type == "array"' >/dev/null 2>&1; then
+            echo "📋 Response is an array, getting first element"
+            NEW_APP_ID=$(echo "$CREATE_OUTPUT" | jq -r '.[0].id // empty')
+          else
+            echo "📋 Response is an object, getting id directly"
+            NEW_APP_ID=$(echo "$CREATE_OUTPUT" | jq -r '.id // empty')
+          fi
+          
+          if [ -z "$NEW_APP_ID" ] || [ "$NEW_APP_ID" = "null" ]; then
+            echo "❌ Failed to extract app ID from response"
+            echo "Response structure:"
+            echo "$CREATE_OUTPUT" | jq '.'
+            exit 1
+          fi
+          
           echo "✅ App created with ID: $NEW_APP_ID"
           echo "app_id=$NEW_APP_ID" >> $GITHUB_OUTPUT
         fi
