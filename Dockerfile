@@ -6,7 +6,7 @@
 FROM tomcat:9.0.100-jdk8-corretto
 
 # Set metadata for the image
-LABEL maintainer="Your Name <your.email@example.com>"
+LABEL maintainer="Sanithu Jayakody santihujayafiverr@gmail.com"
 LABEL application="Bookstore"
 LABEL version="1.0.0"
 
