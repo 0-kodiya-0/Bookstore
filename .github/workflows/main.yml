@@ -17,7 +17,7 @@ on:
 
 env:
   APP_NAME: "bookstore-app"
-  REGISTRY_NAME: "sanithujayafiverr"
+  REGISTRY_NAME: "${{ secrets.DO_REGISTRY_NAME }}"
   IMAGE_NAME: "bookstore"
   REGION: "blr"
 
@@ -42,7 +42,7 @@ jobs:
         echo "release_tag=$RELEASE_TAG" >> $GITHUB_OUTPUT
         
         # Handle project ID
-        PROJECT_ID="${{ github.event.inputs.project_id || '' }}"
+        PROJECT_ID="${{ github.event.inputs.project_id || secrets.DO_PROJECT_ID || '' }}"
         if [ -n "$PROJECT_ID" ]; then
           echo "📋 Using specified project ID: $PROJECT_ID"
           echo "project_id=$PROJECT_ID" >> $GITHUB_OUTPUT
@@ -112,7 +112,7 @@ jobs:
           exit 1
         fi
         
-        PROJECT_NAME=$(doctl projects get $PROJECT_ID --output json | jq -r '.name')
+        PROJECT_NAME=$(doctl projects get $PROJECT_ID --output json | jq -r '[0].name')
         echo "✅ Validated project: $PROJECT_NAME (ID: $PROJECT_ID)"
     
     - name: Check and create container registry
@@ -417,7 +417,7 @@ jobs:
         echo "📋 App Name: $APP_NAME"
         echo "🆔 App ID: $APP_ID"
         if [ -n "$PROJECT_ID" ] && [ "$PROJECT_ID" != "null" ]; then
-          PROJECT_NAME=$(doctl projects get $PROJECT_ID --output json | jq -r '.name // "Unknown"')
+          PROJECT_NAME=$(doctl projects get $PROJECT_ID --output json | jq -r '[0].name // "Unknown"')
           echo "📁 Project: $PROJECT_NAME ($PROJECT_ID)"
         fi
         echo "📦 Image: ${IMAGE_FULL_NAME}:${RELEASE_TAG}"
