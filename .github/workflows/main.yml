@@ -180,7 +180,7 @@ jobs:
             tag: latest
           http_port: 8080
           instance_count: 1
-          instance_size_slug: apps-s-1vcpu-0.5gb
+          instance_size_slug: basic-xxs
           name: $IMAGE_NAME
           environment_slug: node-js
           run_command: ""
@@ -218,7 +218,7 @@ jobs:
         echo "📦 Image: ${{ steps.registry.outputs.registry_url }}/$IMAGE_NAME:latest"
         echo "🏷️ Release: ${{ steps.release.outputs.release_tag }}"
         echo "🌍 Region: $REGION"
-        echo "💰 Instance: apps-s-1vcpu-0.5gb (~$12/month)"
+        echo "💰 Instance: basic-xxs (~$5/month)"
         echo "================================================"
         
         if [ -n "$APP_URL" ] && [ "$APP_URL" != "null" ]; then
