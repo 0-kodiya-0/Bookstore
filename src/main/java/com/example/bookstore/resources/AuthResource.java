@@ -82,8 +82,7 @@ public class AuthResource {
     @POST
     @Path("/register")
     public Response register(Customer customer) {
-        LOGGER.log(Level.INFO, "REST - Registration attempt for email: {0}", customer.getEmail());
-
+        LOGGER.log(Level.INFO, "REST - Registration attempt for email: {0}", customer);
         if (customer.getName() == null || customer.getName().trim().isEmpty()) {
             LOGGER.warning("REST - Registration failed: Name is empty");
             throw new InvalidInputException("Name cannot be empty.");

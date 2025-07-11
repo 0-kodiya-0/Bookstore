@@ -19,6 +19,11 @@ public class Cart implements Serializable {
         this.items = new ArrayList<>();
     }
     
+    public Cart(Long customerId, List<CartItem> items) {
+        this.customerId = customerId;
+        this.items = items != null ? items : new ArrayList<>();
+    }
+    
     // Getters and Setters
     public Long getCustomerId() {
         return customerId;
@@ -71,8 +76,19 @@ public class Cart implements Serializable {
         items.removeIf(item -> item.getBookId().equals(bookId));
     }
 
+    public boolean isEmpty() {
+        return items == null || items.isEmpty();
+    }
+    
+    public int getTotalItemCount() {
+        return items.stream().mapToInt(CartItem::getQuantity).sum();
+    }
+    
     @Override
     public String toString() {
-        return "Cart{" + "customerId=" + customerId + ", items=" + items.toString() + '}';
+        return "Cart{" + 
+                "customerId=" + customerId + 
+                ", items=" + (items != null ? items.toString() : "[]") + 
+                '}';
     }
 }
