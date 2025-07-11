@@ -3,6 +3,7 @@ package com.example.bookstore.bean;
 import com.example.bookstore.models.Customer;
 import com.example.bookstore.models.LoginRequest;
 import com.example.bookstore.models.LoginResponse;
+import com.example.bookstore.models.RegistrationRequest;
 import com.example.bookstore.models.UpdateResponse;
 import com.example.bookstore.resources.AuthResource;
 import com.example.bookstore.utils.JwtUtil;
@@ -111,70 +112,106 @@ public class CustomerBean implements Serializable {
         }
     }
 
-    // Update the register method in CustomerBean.java
-    public String register() {
-        // Validate password confirmation
-        if (!customer.getPassword().equals(confirmPassword)) {
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Passwords do not match"));
-            return null;
-        }
+    public String logout() {
+	    // Clear stored data
+	    loggedInCustomer = null;
+	    jwtToken = null;
+	
+	    // Clear JWT from RestClient
+	    restClient.setJwtToken(null);
+	
+	    // Clear JWT cookie
+	    HttpServletResponse httpResponse = (HttpServletResponse) FacesContext.getCurrentInstance()
+	            .getExternalContext().getResponse();
+	
+	    Cookie tokenCookie = new Cookie("jwt_token", "");
+	    tokenCookie.setMaxAge(0); // Expire immediately
+	    tokenCookie.setPath("/");
+	    httpResponse.addCookie(tokenCookie);
+	
+	    // Invalidate session
+	    HttpSession session = (HttpSession) FacesContext.getCurrentInstance()
+	            .getExternalContext().getSession(false);
+	    if (session != null) {
+	        session.invalidate();
+	    }
+	
+	    FacesContext.getCurrentInstance().addMessage(null,
+	            new FacesMessage(FacesMessage.SEVERITY_INFO, "Success", "You have been logged out"));
+	
+	    return "/index?faces-redirect=true";
+	}
 
-        try {
-            // Use the auth/register endpoint with explicit LoginResponse type
-            LoginResponse response = restClient.post("auth/register", customer, LoginResponse.class);
-
-            if (response == null) {
-                FacesContext.getCurrentInstance().addMessage(null,
-                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Registration failed"));
-                return null;
-            }
-
-            // Store logged in customer and JWT token
-            loggedInCustomer = response.getCustomer();
-            jwtToken = response.getToken();
-
-            // Set JWT token in the RestClient
-            restClient.setJwtToken(jwtToken);
-
-            // Store JWT in cookie
-            HttpServletResponse httpResponse = (HttpServletResponse) FacesContext.getCurrentInstance()
-                    .getExternalContext().getResponse();
-
-            Cookie tokenCookie = new Cookie("jwt_token", jwtToken);
-            tokenCookie.setMaxAge(24 * 60 * 60); // 24 hours expiry
-            tokenCookie.setPath("/");
-            tokenCookie.setHttpOnly(true); // For security
-            httpResponse.addCookie(tokenCookie);
-
-            // Store in session
-            HttpSession session = (HttpSession) FacesContext.getCurrentInstance()
-                    .getExternalContext().getSession(true);
-            session.setAttribute("loggedInCustomer", loggedInCustomer);
-            session.setAttribute("jwtToken", jwtToken);
-
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Success", "Registration successful"));
-
-            return "/index?faces-redirect=true";
-        } catch (Exception e) {
-            // Detailed logging for debugging
-            LOGGER.log(Level.SEVERE, "Registration error: " + e.getMessage(), e);
-
-            // Check for specific error messages
-            String errorMsg = e.getMessage();
-            if (errorMsg != null && errorMsg.contains("email already exists")) {
-                // Provide more user-friendly error message for duplicate email
-                FacesContext.getCurrentInstance().addMessage(null,
-                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Registration Error",
-                                "An account with this email already exists. Please try logging in or use a different email."));
-            } else {
-                FacesContext.getCurrentInstance().addMessage(null,
-                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Registration Error", errorMsg));
-            }
-            return null;
-        }
-    }
+	// Update the register method in CustomerBean.java
+	public String register() {
+	    // Validate password confirmation
+	    if (!customer.getPassword().equals(confirmPassword)) {
+	        FacesContext.getCurrentInstance().addMessage(null,
+	                new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Passwords do not match"));
+	        return null;
+	    }
+	
+	    try {
+	        // Create RegistrationRequest DTO
+	        RegistrationRequest registrationRequest = new RegistrationRequest();
+	        registrationRequest.setName(customer.getName());
+	        registrationRequest.setEmail(customer.getEmail());
+	        registrationRequest.setPassword(customer.getPassword());
+	
+	        // Use the auth/register endpoint with RegistrationRequest DTO
+	        LoginResponse response = restClient.post("auth/register", registrationRequest, LoginResponse.class);
+	
+	        if (response == null) {
+	            FacesContext.getCurrentInstance().addMessage(null,
+	                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Registration failed"));
+	            return null;
+	        }
+	
+	        // Store logged in customer and JWT token
+	        loggedInCustomer = response.getCustomer();
+	        jwtToken = response.getToken();
+	
+	        // Set JWT token in the RestClient
+	        restClient.setJwtToken(jwtToken);
+	
+	        // Store JWT in cookie
+	        HttpServletResponse httpResponse = (HttpServletResponse) FacesContext.getCurrentInstance()
+	                .getExternalContext().getResponse();
+	
+	        Cookie tokenCookie = new Cookie("jwt_token", jwtToken);
+	        tokenCookie.setMaxAge(24 * 60 * 60); // 24 hours expiry
+	        tokenCookie.setPath("/");
+	        tokenCookie.setHttpOnly(true); // For security
+	        httpResponse.addCookie(tokenCookie);
+	
+	        // Store in session
+	        HttpSession session = (HttpSession) FacesContext.getCurrentInstance()
+	                .getExternalContext().getSession(true);
+	        session.setAttribute("loggedInCustomer", loggedInCustomer);
+	        session.setAttribute("jwtToken", jwtToken);
+	
+	        FacesContext.getCurrentInstance().addMessage(null,
+	                new FacesMessage(FacesMessage.SEVERITY_INFO, "Success", "Registration successful"));
+	
+	        return "/index?faces-redirect=true";
+	    } catch (Exception e) {
+	        // Detailed logging for debugging
+	        LOGGER.log(Level.SEVERE, "Registration error: " + e.getMessage(), e);
+	
+	        // Check for specific error messages
+	        String errorMsg = e.getMessage();
+	        if (errorMsg != null && errorMsg.contains("email already exists")) {
+	            // Provide more user-friendly error message for duplicate email
+	            FacesContext.getCurrentInstance().addMessage(null,
+	                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Registration Error",
+	                            "An account with this email already exists. Please try logging in or use a different email."));
+	        } else {
+	            FacesContext.getCurrentInstance().addMessage(null,
+	                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Registration Error", errorMsg));
+	        }
+	        return null;
+	    }
+	}
 
     public String login() {
         try {
@@ -224,36 +261,6 @@ public class CustomerBean implements Serializable {
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", e.getMessage()));
             return null;
         }
-    }
-
-    public String logout() {
-        // Clear stored data
-        loggedInCustomer = null;
-        jwtToken = null;
-
-        // Clear JWT from RestClient
-        restClient.setJwtToken(null);
-
-        // Clear JWT cookie
-        HttpServletResponse httpResponse = (HttpServletResponse) FacesContext.getCurrentInstance()
-                .getExternalContext().getResponse();
-
-        Cookie tokenCookie = new Cookie("jwt_token", "");
-        tokenCookie.setMaxAge(0); // Expire immediately
-        tokenCookie.setPath("/");
-        httpResponse.addCookie(tokenCookie);
-
-        // Invalidate session
-        HttpSession session = (HttpSession) FacesContext.getCurrentInstance()
-                .getExternalContext().getSession(false);
-        if (session != null) {
-            session.invalidate();
-        }
-
-        FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_INFO, "Success", "You have been logged out"));
-
-        return "/index?faces-redirect=true";
     }
 
     public void loadCustomer(Long id) {

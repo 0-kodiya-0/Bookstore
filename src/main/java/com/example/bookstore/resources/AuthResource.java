@@ -5,6 +5,7 @@ import com.example.bookstore.exception.InvalidInputException;
 import com.example.bookstore.models.Customer;
 import com.example.bookstore.models.LoginRequest;
 import com.example.bookstore.models.LoginResponse;
+import com.example.bookstore.models.RegistrationRequest;
 import com.example.bookstore.repository.CustomerRepository;
 import com.example.bookstore.utils.JwtUtil;
 import java.util.List;
@@ -81,28 +82,39 @@ public class AuthResource {
     // Add this method to AuthResource.java
     @POST
     @Path("/register")
-    public Response register(Customer customer) {
-        LOGGER.log(Level.INFO, "REST - Registration attempt for email: {0}", customer);
-        if (customer.getName() == null || customer.getName().trim().isEmpty()) {
+    public Response register(RegistrationRequest registrationRequest) {
+        LOGGER.log(Level.INFO, "REST - Registration attempt: {0}", registrationRequest);
+        
+        if (registrationRequest.getName() == null || registrationRequest.getName().trim().isEmpty()) {
             LOGGER.warning("REST - Registration failed: Name is empty");
             throw new InvalidInputException("Name cannot be empty.");
         }
 
-        if (customer.getEmail() == null || customer.getEmail().trim().isEmpty()) {
+        if (registrationRequest.getEmail() == null || registrationRequest.getEmail().trim().isEmpty()) {
             LOGGER.warning("REST - Registration failed: Email is empty");
             throw new InvalidInputException("Email cannot be empty.");
         }
 
-        if (customer.getPassword() == null || customer.getPassword().length() < 6) {
+        if (registrationRequest.getPassword() == null || registrationRequest.getPassword().length() < 6) {
             LOGGER.warning("REST - Registration failed: Password is invalid");
             throw new InvalidInputException("Password must be at least 6 characters.");
         }
 
         try {
+            // Create Customer from RegistrationRequest
+            Customer customer = new Customer();
+            customer.setName(registrationRequest.getName());
+            customer.setEmail(registrationRequest.getEmail());
+            customer.setPassword(registrationRequest.getPassword());
+            
             // Add customer via repository
             Customer createdCustomer = customerRepository.addCustomer(customer);
-            Customer responseCustomer = new Customer(createdCustomer);
-            responseCustomer.setPassword(null);
+            
+            // Create response customer without password
+            Customer responseCustomer = new Customer();
+            responseCustomer.setId(createdCustomer.getId());
+            responseCustomer.setName(createdCustomer.getName());
+            responseCustomer.setEmail(createdCustomer.getEmail());
 
             // Generate token for auto-login
             String token = JwtUtil.generateToken(
@@ -115,7 +127,7 @@ public class AuthResource {
             response.setToken(token);
             response.setCustomer(responseCustomer);
 
-            LOGGER.log(Level.INFO, "REST - Registration successful for email: {0}", customer.getEmail());
+            LOGGER.log(Level.INFO, "REST - Registration successful for email: {0}", registrationRequest.getEmail());
             return Response.status(Response.Status.CREATED).entity(response).build();
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "REST - Registration error: {0}", e.getMessage());
